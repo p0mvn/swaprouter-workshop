@@ -1,12 +1,27 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
+use cosmwasm_std::{Coin, Uint128};
+use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
 
 /// Message type for `instantiate` entry_point
 #[cw_serde]
-pub struct InstantiateMsg {}
+pub struct InstantiateMsg {
+    pub owner: String,
+}
 
 /// Message type for `execute` entry_point
 #[cw_serde]
-pub enum ExecuteMsg {}
+pub enum ExecuteMsg {
+    SetRoute {
+        input_denom: String,
+        output_denom: String,
+        pool_route: Vec<SwapAmountInRoute>,
+    },
+    Swap {
+        input_coin: Coin,
+        output_denom: String,
+        minimum_output_amount: Uint128,
+    },
+}
 
 /// Message type for `migrate` entry_point
 #[cw_serde]
@@ -16,15 +31,18 @@ pub enum MigrateMsg {}
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
-    // This example query variant indicates that any client can query the contract
-    // using `YourQuery` and it will return `YourQueryResponse`
-    // This `returns` information will be included in contract's schema
-    // which is used for client code generation.
-    //
-    // #[returns(YourQueryResponse)]
-    // YourQuery {},
+    #[returns(GetOwnerResponse)]
+    GetOwner {},
+    #[returns(GetRouteResponse)]
+    GetRoute {},
 }
 
-// We define a custom struct for each query response
-// #[cw_serde]
-// pub struct YourQueryResponse {}
+#[cw_serde]
+pub struct GetOwnerResponse {
+    pub owner: String,
+}
+
+#[cw_serde]
+pub struct GetRouteResponse {
+    pub pool_route: Vec<SwapAmountInRoute>,
+}
