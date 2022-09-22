@@ -6,9 +6,8 @@ use cosmwasm_std::{
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-
 use crate::execute::{set_route, swap};
+use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::query::{query_owner, query_route};
 use crate::state::OWNER;
 
@@ -55,9 +54,9 @@ pub fn migrate(_deps: DepsMut, _env: Env, msg: MigrateMsg) -> Result<Response, C
 /// Handling contract execution
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
-    _deps: DepsMut,
+    deps: DepsMut,
     _env: Env,
-    _info: MessageInfo,
+    info: MessageInfo,
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
@@ -65,7 +64,7 @@ pub fn execute(
             input_denom,
             output_denom,
             pool_route,
-        } => set_route(input_denom, output_denom, pool_route),
+        } => set_route(deps, info, input_denom, output_denom, pool_route),
         ExecuteMsg::Swap {
             input_coin,
             output_denom,
@@ -79,7 +78,10 @@ pub fn execute(
 pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetOwner {} => to_binary(&query_owner()?),
-        QueryMsg::GetRoute { input_denom, output_denom } => to_binary(&query_route(input_denom, output_denom)?),
+        QueryMsg::GetRoute {
+            input_denom,
+            output_denom,
+        } => to_binary(&query_route(input_denom, output_denom)?),
     }
 }
 
