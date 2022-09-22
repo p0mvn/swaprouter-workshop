@@ -92,14 +92,16 @@ mod tests {
     fn instantiate_works() {
         let mut deps = mock_dependencies();
 
-        let msg = InstantiateMsg { owner: String::from(MOCK_CONTRACT_ADDR) };
+        let msg = InstantiateMsg {
+            owner: String::from(MOCK_CONTRACT_ADDR),
+        };
         let info = mock_info("creator", &coins(1000, "earth"));
 
         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
         assert_eq!(0, res.messages.len());
 
         // make sure that the owner was set correctly.
-        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {  }).unwrap();
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
         let value: GetOwnerResponse = from_binary(&res).unwrap();
         assert_eq!(MOCK_CONTRACT_ADDR, value.owner);
     }
