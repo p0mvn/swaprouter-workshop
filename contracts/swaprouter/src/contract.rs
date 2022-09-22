@@ -4,14 +4,7 @@ use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, Std
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
-<<<<<<< HEAD
-use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-=======
-use crate::execute::{set_route, swap};
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use crate::query::{query_owner, query_route};
-use crate::state::OWNER;
->>>>>>> 16611fe (remove migrate message (#10))
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:swaprouter";
