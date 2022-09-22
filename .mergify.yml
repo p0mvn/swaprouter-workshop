@@ -15,3 +15,11 @@ pull_request_rules:
       backport:
         branches:
           - checkpoint/1-instantiate-msg-stubs
+  - name: backport patches to checkpoint/2-set-route-msg
+    conditions:
+      - base=main
+      - label=backport/checkpoint/2-set-route-msg
+    actions:
+      backport:
+        branches:
+          - checkpoint/2-set-route-msg
