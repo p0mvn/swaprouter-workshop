@@ -1,0 +1,17 @@
+pull_request_rules:
+  - name: backport patches to checkpoint/0-setup-boilerplate
+    conditions:
+      - base=main
+      - label=checkpoint/0-setup-boilerplate
+    actions:
+      backport:
+        branches:
+          - checkpoint/0-setup-boilerplate
+  - name: backport patches to checkpoint/1-instantiate-msg-stubs
+    conditions:
+      - base=main
+      - label=checkpoint1
+    actions:
+      backport:
+        branches:
+          - checkpoint/1-instantiate-msg-stubs
