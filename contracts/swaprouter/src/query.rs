@@ -8,6 +8,6 @@ pub fn query_owner() -> StdResult<GetOwnerResponse> {
     })
 }
 
-pub fn query_route() -> StdResult<GetRouteResponse> {
+pub fn query_route(input_denom: String, output_denom: String) -> StdResult<GetRouteResponse> {
     Ok(GetRouteResponse { pool_route: vec![] })
 }
