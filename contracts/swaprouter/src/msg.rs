@@ -8,10 +8,6 @@ pub struct InstantiateMsg {}
 #[cw_serde]
 pub enum ExecuteMsg {}
 
-/// Message type for `migrate` entry_point
-#[cw_serde]
-pub enum MigrateMsg {}
-
 /// Message type for `query` entry_point
 #[cw_serde]
 #[derive(QueryResponses)]
