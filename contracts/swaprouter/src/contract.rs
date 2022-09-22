@@ -6,14 +6,8 @@ use cosmwasm_std::{
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
-<<<<<<< HEAD
-use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-
-use crate::execute::{set_route, swap};
-=======
 use crate::execute::{set_route, swap};
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
->>>>>>> 16611fe (remove migrate message (#10))
 use crate::query::{query_owner, query_route};
 use crate::state::OWNER;
 
