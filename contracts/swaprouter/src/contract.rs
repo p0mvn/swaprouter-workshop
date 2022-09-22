@@ -79,7 +79,7 @@ pub fn execute(
 pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetOwner {} => to_binary(&query_owner()?),
-        QueryMsg::GetRoute {} => to_binary(&query_route()?),
+        QueryMsg::GetRoute { input_denom, output_denom } => to_binary(&query_route(input_denom, output_denom)?),
     }
 }
 

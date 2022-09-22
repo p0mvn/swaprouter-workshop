@@ -34,7 +34,10 @@ pub enum QueryMsg {
     #[returns(GetOwnerResponse)]
     GetOwner {},
     #[returns(GetRouteResponse)]
-    GetRoute {},
+    GetRoute {
+        input_denom: String,
+        output_denom: String,
+    },
 }
 
 #[cw_serde]
