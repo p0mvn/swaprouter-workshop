@@ -60,13 +60,13 @@ pub fn execute(
 
 /// Handling contract query
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
+pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetOwner {} => to_binary(&query_owner()?),
+        QueryMsg::GetOwner {} => to_binary(&query_owner(deps)?),
         QueryMsg::GetRoute {
             input_denom,
             output_denom,
-        } => to_binary(&query_route(input_denom, output_denom)?),
+        } => to_binary(&query_route(deps, input_denom, output_denom)?),
     }
 }
 
@@ -78,4 +78,29 @@ pub fn reply(_deps: DepsMut, _env: Env, _msg: Reply) -> Result<Response, Contrac
     // See: https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#dispatching-messages
 
     todo!()
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::msg::GetOwnerResponse;
+
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info, MOCK_CONTRACT_ADDR};
+    use cosmwasm_std::{coins, from_binary};
+
+    #[test]
+    fn instantiate_works() {
+        let mut deps = mock_dependencies();
+
+        let msg = InstantiateMsg { owner: String::from(MOCK_CONTRACT_ADDR) };
+        let info = mock_info("creator", &coins(1000, "earth"));
+
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+
+        // make sure that the owner was set correctly.
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {  }).unwrap();
+        let value: GetOwnerResponse = from_binary(&res).unwrap();
+        assert_eq!(MOCK_CONTRACT_ADDR, value.owner);
+    }
 }
