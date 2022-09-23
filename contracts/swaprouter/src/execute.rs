@@ -1,8 +1,9 @@
-use cosmwasm_std::{Coin, DepsMut, MessageInfo, Response, Uint128};
+use cosmwasm_std::{has_coins, Coin, DepsMut, MessageInfo, Response, Env, SubMsg};
 use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
 
-use crate::helpers::{validate_is_contract_owner, validate_pool_route};
-use crate::state::ROUTING_TABLE;
+use crate::contract::SWAP_REPLY_ID;
+use crate::helpers::{validate_is_contract_owner, validate_pool_route, generate_swap_msg};
+use crate::state::{ROUTING_TABLE};
 use crate::ContractError;
 
 // set_route sets route for swaps. Only contract owner may execute this message.
@@ -43,10 +44,33 @@ pub fn set_route(
     Ok(Response::new().add_attribute("action", "set_route"))
 }
 
+// swap initiates an Osmosis swap message of the input_coin to at least
+// minimum_output_token of another coin. Wraps the message into
+// CosmWasm swap message to receive reply from the respective entrypoint.
+// Returns error if:
+// - funds sent in by the initiator do no match the input_coin.
+// - fails to generate the message.
 pub fn swap(
-    _input_coin: Coin,
-    _output_denom: String,
-    _minimum_output_amount: Uint128,
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_coin: Coin,
+    minimum_output_token: Coin,
 ) -> Result<Response, ContractError> {
-    Ok(Response::default())
+    if !has_coins(&info.funds, &input_coin) {
+        return Err(ContractError::InsufficientFunds {});
+    }
+
+    // generate the swap message using osmosis-rust (osmosis_std).
+    let swap_msg = generate_swap_msg(
+        deps.as_ref(),
+        env.contract.address,
+        input_coin,
+        minimum_output_token,
+    )?;
+
+    Ok(Response::new()
+        .add_attribute("action", "swap")
+        // add sub message with reply on success. See reply entrypoint for the continuation of the flow.
+        .add_submessage(SubMsg::reply_on_success(swap_msg, SWAP_REPLY_ID)))
 }
