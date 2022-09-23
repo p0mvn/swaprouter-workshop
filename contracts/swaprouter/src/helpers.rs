@@ -152,12 +152,11 @@ pub fn calculate_min_output_from_twap(
             val: "Invalid twap value received from the chain".to_string(),
         })?;
 
-        twap_price =
-            twap_price
-                .checked_mul(current_twap.into())
-                .map_err(|_e| ContractError::CustomError {
-                    val: format!("Invalid value for twap price: {twap_price} * {twap}"),
-                })?;
+        twap_price = twap_price.checked_mul(current_twap.into()).map_err(|_e| {
+            ContractError::CustomError {
+                val: format!("Invalid value for twap price: {twap_price} * {twap}"),
+            }
+        })?;
 
         // the current output is the input for the next route_part
         quote_denom = route_part.token_out_denom;

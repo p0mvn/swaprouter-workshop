@@ -26,17 +26,26 @@ impl TestEnv {
 
         // create pools
         gamm.create_basic_pool(
-            &[Coin::new(1_000, "uion"), Coin::new(1_000, "uosmo")],
+            &[
+                Coin::new(100_000_000, "uion"),
+                Coin::new(100_000_000, "uosmo"),
+            ],
             &owner,
         )
         .unwrap();
         gamm.create_basic_pool(
-            &[Coin::new(1_000, "stake"), Coin::new(1_000, "uosmo")],
+            &[
+                Coin::new(100_000_000, "stake"),
+                Coin::new(100_000_000, "uosmo"),
+            ],
             &owner,
         )
         .unwrap();
         gamm.create_basic_pool(
-            &[Coin::new(1_000, "stake"), Coin::new(1_000, "uion")],
+            &[
+                Coin::new(100_000_000, "stake"),
+                Coin::new(100_000_000, "uion"),
+            ],
             &owner,
         )
         .unwrap();

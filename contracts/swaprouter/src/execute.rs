@@ -7,7 +7,7 @@ use crate::helpers::{
     validate_pool_route,
 };
 use crate::msg::SwapType;
-use crate::state::ROUTING_TABLE;
+use crate::state::{SwapMsgReplyState, ROUTING_TABLE, SWAP_REPLY_STATES};
 use crate::ContractError;
 
 // set_route sets route for swaps. Only contract owner may execute this message.
@@ -86,6 +86,16 @@ pub fn swap(
         env.contract.address,
         input_coin,
         minimum_output_token,
+    )?;
+
+    // save intermediate state for reply
+    SWAP_REPLY_STATES.save(
+        deps.storage,
+        SWAP_REPLY_ID,
+        &SwapMsgReplyState {
+            original_sender: info.sender,
+            swap_msg: swap_msg.clone(),
+        },
     )?;
 
     Ok(Response::new()

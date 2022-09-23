@@ -3,8 +3,8 @@ use std::str::FromStr;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    coins, to_binary, BankMsg, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response,
-    StdResult, SubMsgResponse, SubMsgResult, Uint128,
+    coins, to_binary, BankMsg, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdResult,
+    SubMsgResponse, SubMsgResult, Uint128,
 };
 use cw2::set_contract_version;
 use osmosis_std::types::osmosis::gamm::v1beta1::MsgSwapExactAmountInResponse;
