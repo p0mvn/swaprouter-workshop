@@ -66,7 +66,82 @@ are available to jump to any specific point in the workshop.
 
 ### 0. Setup and Contract Boilerplate
 
+Goal: have a foundational structure of the CosmWasm contract generated with Beaker.
+We will go over this structure and understand the anatomy of a smart contract.
+
+#### Step 1: Let’s generate and build a new CosmWasm project with Beaker
+
+```bash
+# Generate workspace
+beaker new swaprouter-workshop
+
+# Generate contract inside the workspace
+cd swaprouter-workshop
+beaker wasm new swaprouter
+```
+
+Open workspace root in your editor of choice
+
+You should observe the following directory structure:
+
+```bash
+tree
+.
+├── Beaker.toml
+├── Cargo.lock
+├── Cargo.toml
+├── README.md
+├── contracts
+│   └── swaprouter
+│       ├── Cargo.toml
+│       ├── LICENSE
+│       ├── NOTICE
+│       ├── README.md
+│       └── src
+│           ├── bin
+│           │   └── schema.rs
+│           ├── contract.rs
+│           ├── error.rs
+│           ├── lib.rs
+│           ├── msg.rs
+│           └── state.rs
+└── ts
+    └── ...
+```
+
+Let's go over the Rust files that we care about:
+
+- `contract.rs`
+
+Defines entrypoints of the smart contract. There are 3 main entrypoints that we will be interacting with
+today:
+
+1. `instantiate`
+
+2. `execute`
+
+3. `query`
+
+There are other entrypoints such as `migrate` that are outside of scope of this workshop.
+
+- `error.rs`
+
+This file defines the error types that can be returned by the contract. We will be defining custom
+errors later in the workshop.
+
+- `msg.rs`
+
+Here, we are going to define all of the messages that our smart contract will support. Each entrypoint
+discussed earlier has its own set of messages.
+
+- `state.rs`
+
+Defines the state of the smart contract. In this file, we will be defining the storage layout for
+persising any information across contract calls.
+
 ### 1. Complete Instantiate Message and Write Out Stubs
+
+Goal: finish the implementation of `InstantiateMsg` and outline the stubs for all other messages.
 
 ### 2. Implement Set Route Message
 
