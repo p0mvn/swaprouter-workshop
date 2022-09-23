@@ -128,6 +128,10 @@ TODO: explain
 
 TODO: explain
 
+4. `reply`
+
+TODO: explain
+
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
 - `error.rs`
@@ -147,11 +151,52 @@ persising any information across contract calls.
 
 TODO: compare to Ethereum, common pitfalls and protection from reentrancy attacks
 
-TODO: user stories and translation to messages to be implemented
-
 ### 1. Complete Instantiate Message and Write Out Stubs
 
 Goal: finish the implementation of `InstantiateMsg` and outline the stubs for all other messages.
+
+#### User Stories
+
+Let's begin by undrstanding the requirements.
+
+1. As a contract owner, I would like to have exclusive access to set trading routes so that I can be the only one with privileges of limiting trades to tokens needed by my application
+
+Need:
+
+- `InstantiateMsg` that stores the contract owner address
+    * Fully implemented in checkpoint this checkpoint - 1
+
+- `ExecuteMsg::SetRoute` that can only be called by the contract owner.
+    * Fully implemented in checkpoint 2
+
+- `QueryMsg::GetOwner` to query the owner of the contract.
+
+
+2. As a contract user, I would like to be able to trade only on the pre-defined route so that I can be confident I am only exposed to the trades needed by the application
+
+Need:
+
+- `ExecuteMsg::Swap` that can be called by anyone.
+    * Fully implemented in checkpoint 4
+    * Performs a swap on the pre-defined route.
+
+- Swap reply message
+    * Fully implemented in checkpoint 4
+    * `ExecuteMsg::Swap` requires interacting with the Osmosis chain.
+    So we need to send a swap message to it and receive a reply, all in
+    one transaction.
+
+TODO: is this the place to dive deeper into reply messages?
+
+
+3. As a contract user, I would like to be able to trade with maximum price impact so that my large
+trades do not affect the market too much.
+
+Need:
+
+- Improve `ExecuteMsg::Swap` to support a new trade type with max price impact.
+    * Fully implemented in checkpoint 5 (latest state of the repository).
+
 
 ### 2. Implement Set Route Message
 
