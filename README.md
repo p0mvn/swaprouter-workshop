@@ -118,9 +118,15 @@ today:
 
 1. `instantiate`
 
+TODO: explain
+
 2. `execute`
 
+TODO: explain
+
 3. `query`
+
+TODO: explain
 
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
@@ -138,6 +144,10 @@ discussed earlier has its own set of messages.
 
 Defines the state of the smart contract. In this file, we will be defining the storage layout for
 persising any information across contract calls.
+
+TODO: compare to Ethereum, common pitfalls and protection from reentrancy attacks
+
+TODO: user stories and translation to messages to be implemented
 
 ### 1. Complete Instantiate Message and Write Out Stubs
 
