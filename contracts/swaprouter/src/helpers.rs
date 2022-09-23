@@ -79,6 +79,10 @@ pub fn validate_pool_route(
     Ok(())
 }
 
+// generate_swap_msg generates and returns an Osmosis
+// MsgSwapExactAmountIn with sender, input token and min_output_token.
+// Returns error if there is no supported route
+// between input_token and min_output_token.
 pub fn generate_swap_msg(
     deps: Deps,
     sender: Addr,
