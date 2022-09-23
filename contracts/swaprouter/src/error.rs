@@ -12,6 +12,12 @@ pub enum ContractError {
     #[error("Invalid Pool Route: {reason:?}")]
     InvalidPoolRoute { reason: String },
 
+    #[error("Insufficient Funds")]
+    InsufficientFunds {},
+
+    #[error("Failed Swap: {reason:?}")]
+    FailedSwap { reason: String },
+
     #[error("Custom Error val: {val:?}")]
     CustomError { val: String },
     // Add any other custom errors you like here.

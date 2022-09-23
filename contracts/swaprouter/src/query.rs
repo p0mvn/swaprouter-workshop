@@ -5,7 +5,6 @@ use crate::{
     state::{OWNER, ROUTING_TABLE},
 };
 
-
 // query_owner returns contracr owner. Returns error on storage failure.
 pub fn query_owner(deps: Deps) -> StdResult<GetOwnerResponse> {
     let owner = OWNER.load(deps.storage)?;
