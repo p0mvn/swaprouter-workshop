@@ -213,7 +213,7 @@ fn test_set_route_success_case(msg: ExecuteMsg) {
     let res = wasm.execute(&contract_address, &msg, &[], &owner);
 
     // check if execution succeeded
-    assert!(res.is_ok(), "{}", res.unwrap_err());
+    assert!(res.is_ok(), "{:?}", res.unwrap_err());
 
     // check if previously set route can be queried correctly
     match msg {
