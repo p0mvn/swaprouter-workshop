@@ -31,3 +31,11 @@ pull_request_rules:
       backport:
         branches:
           - checkpoint/3-queries
+  - name: backport patches to checkpoint/4-swap-msg
+    conditions:
+      - base=main
+      - label=backport/checkpoint/4-swap-msg
+    actions:
+      backport:
+        branches:
+          - checkpoint/4-swap-msg
