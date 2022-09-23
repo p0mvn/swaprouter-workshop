@@ -53,3 +53,15 @@ TODO
 - [Smart Contract Architecture and Common Pitfalls](https://docs.cosmwasm.com/docs/0.16/architecture/smart-contracts)
 
 ## Checkpoints
+
+### 0. Setup and Contract Boilerplate
+
+### 1. Complete Instantiate Message and Write Out Stubs
+
+### 2. Implement Set Route Message
+
+### 3. Implement Queries
+
+### 4. Implement Basic Swap Message
+
+### 5. Final Result: Swap with Maximum Price Impact Percentage
