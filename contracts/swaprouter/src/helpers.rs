@@ -1,7 +1,11 @@
-use cosmwasm_std::{Addr, Coin, Deps};
+use std::ops::{Div, Mul};
+
+use cosmwasm_std::{Addr, Coin, Decimal, Deps, Timestamp, Uint128};
+use osmosis_std::shim::Timestamp as OsmosisTimestamp;
 use osmosis_std::types::osmosis::gamm::v1beta1::{
     MsgSwapExactAmountIn, QueryTotalPoolLiquidityRequest, SwapAmountInRoute,
 };
+use osmosis_std::types::osmosis::twap::v1beta1::TwapQuerier;
 
 use crate::{
     state::{OWNER, ROUTING_TABLE},
@@ -98,4 +102,73 @@ pub fn generate_swap_msg(
         token_in: Some(input_token.into()),
         token_out_min_amount: min_output_token.amount.to_string(),
     })
+}
+
+pub fn calculate_min_output_from_twap(
+    deps: Deps,
+    input_token: Coin,
+    output_denom: String,
+    now: Timestamp,
+    percentage_impact: Decimal,
+) -> Result<Coin, ContractError> {
+    // get trade route
+    let route = ROUTING_TABLE.load(deps.storage, (&input_token.denom, &output_denom))?;
+    if route.is_empty() {
+        return Err(ContractError::InvalidPoolRoute {
+            reason: format!("No route foung for {} -> {output_denom}", input_token.denom),
+        });
+    }
+
+    let percentage = percentage_impact.div(Uint128::new(100));
+
+    let mut twap_price: Decimal = Decimal::one();
+
+    // When swapping from input to output, we need to quote the price in the input token
+    // For example when selling uosmo to buy uion:
+    // price of <out> is X<in> (i.e.: price of uion is X uosmo)
+    let mut quote_denom = input_token.denom;
+
+    let start_time = now.minus_seconds(1);
+    let start_time = OsmosisTimestamp {
+        seconds: start_time.seconds() as i64,
+        nanos: 0_i32,
+    };
+
+    for route_part in route {
+        deps.api.debug(&format!("route part: {route_part:?}"));
+
+        let twap = TwapQuerier::new(&deps.querier)
+            .arithmetic_twap_to_now(
+                route_part.pool_id,
+                route_part.token_out_denom.clone(), // base_asset
+                quote_denom.clone(),                // quote_asset
+                Some(start_time.clone()),
+            )?
+            .arithmetic_twap;
+
+        deps.api.debug(&format!("twap = {twap}"));
+
+        let current_twap: Decimal = twap.parse().map_err(|_e| ContractError::CustomError {
+            val: "Invalid twap value received from the chain".to_string(),
+        })?;
+
+        twap_price = twap_price.checked_mul(current_twap.into()).map_err(|_e| {
+            ContractError::CustomError {
+                val: format!("Invalid value for twap price: {twap_price} * {twap}"),
+            }
+        })?;
+
+        // the current output is the input for the next route_part
+        quote_denom = route_part.token_out_denom;
+    }
+
+    twap_price = twap_price - twap_price.mul(percentage);
+    deps.api.debug(&format!(
+        "twap_price minus {percentage_impact}%: {twap_price}"
+    ));
+
+    let min_out: Uint128 = input_token.amount.mul(twap_price);
+    deps.api.debug(&format!("min: {min_out}"));
+
+    Ok(Coin::new(min_out.into(), output_denom))
 }
