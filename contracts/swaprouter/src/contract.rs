@@ -3,7 +3,8 @@ use std::str::FromStr;
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdResult, coin, SubMsgResult, SubMsgResponse, Uint128, BankMsg, coins,
+    coins, to_binary, BankMsg, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response,
+    StdResult, SubMsgResponse, SubMsgResult, Uint128,
 };
 use cw2::set_contract_version;
 use osmosis_std::types::osmosis::gamm::v1beta1::MsgSwapExactAmountInResponse;
@@ -12,7 +13,7 @@ use crate::error::ContractError;
 use crate::execute::{set_route, swap};
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::query::{query_owner, query_route};
-use crate::state::{OWNER, SWAP_REPLY_STATES, SwapMsgReplyState};
+use crate::state::{SwapMsgReplyState, OWNER, SWAP_REPLY_STATES};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:swaprouter";
@@ -59,14 +60,8 @@ pub fn execute(
         ExecuteMsg::Swap {
             input_coin,
             output_denom,
-            minimum_output_amount,
-        } => swap(
-            deps,
-            env,
-            info,
-            input_coin,
-            coin(minimum_output_amount.u128(), output_denom),
-        ),
+            swap_type,
+        } => swap(deps, env, info, input_coin, output_denom, swap_type),
     }
 }
 

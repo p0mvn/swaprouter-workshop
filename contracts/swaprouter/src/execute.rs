@@ -1,9 +1,13 @@
-use cosmwasm_std::{has_coins, Coin, DepsMut, MessageInfo, Response, Env, SubMsg};
+use cosmwasm_std::{coin, has_coins, Coin, DepsMut, Env, MessageInfo, Response, SubMsg};
 use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
 
 use crate::contract::SWAP_REPLY_ID;
-use crate::helpers::{validate_is_contract_owner, validate_pool_route, generate_swap_msg};
-use crate::state::{ROUTING_TABLE};
+use crate::helpers::{
+    calculate_min_output_from_twap, generate_swap_msg, validate_is_contract_owner,
+    validate_pool_route,
+};
+use crate::msg::SwapType;
+use crate::state::ROUTING_TABLE;
 use crate::ContractError;
 
 // set_route sets route for swaps. Only contract owner may execute this message.
@@ -55,11 +59,26 @@ pub fn swap(
     env: Env,
     info: MessageInfo,
     input_coin: Coin,
-    minimum_output_token: Coin,
+    output_denom: String,
+    swap_type: SwapType,
 ) -> Result<Response, ContractError> {
     if !has_coins(&info.funds, &input_coin) {
         return Err(ContractError::InsufficientFunds {});
     }
+
+    // get minimum output coin from swap type.
+    let minimum_output_token = match swap_type {
+        SwapType::MaxPriceImpactPercentage(percentage) => calculate_min_output_from_twap(
+            deps.as_ref(),
+            input_coin.clone(),
+            output_denom,
+            env.block.time,
+            percentage,
+        )?,
+        SwapType::MinOutputAmount(minimum_output_amount) => {
+            coin(minimum_output_amount.u128(), output_denom)
+        }
+    };
 
     // generate the swap message using osmosis-rust (osmosis_std).
     let swap_msg = generate_swap_msg(

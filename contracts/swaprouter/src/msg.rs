@@ -1,5 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Coin, Uint128};
+use cosmwasm_std::{Coin, Decimal, Uint128};
 use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
 
 /// Message type for `instantiate` entry_point
@@ -19,7 +19,7 @@ pub enum ExecuteMsg {
     Swap {
         input_coin: Coin,
         output_denom: String,
-        minimum_output_amount: Uint128,
+        swap_type: SwapType,
     },
 }
 
@@ -44,4 +44,10 @@ pub struct GetOwnerResponse {
 #[cw_serde]
 pub struct GetRouteResponse {
     pub pool_route: Vec<SwapAmountInRoute>,
+}
+
+#[cw_serde]
+pub enum SwapType {
+    MaxPriceImpactPercentage(Decimal),
+    MinOutputAmount(Uint128),
 }
