@@ -4,7 +4,7 @@
 use cosmwasm_schema::cw_serde;
 use cosmwasm_std::Addr;
 use cw_storage_plus::{Item, Map};
-use osmosis_std::types::osmosis::gamm::v1beta1::{SwapAmountInRoute, MsgSwapExactAmountIn};
+use osmosis_std::types::osmosis::gamm::v1beta1::{MsgSwapExactAmountIn, SwapAmountInRoute};
 
 #[cw_serde]
 pub struct SwapMsgReplyState {

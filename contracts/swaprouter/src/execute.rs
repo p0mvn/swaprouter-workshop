@@ -1,9 +1,9 @@
-use cosmwasm_std::{has_coins, Coin, DepsMut, MessageInfo, Response, Env, SubMsg};
+use cosmwasm_std::{has_coins, Coin, DepsMut, Env, MessageInfo, Response, SubMsg};
 use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
 
 use crate::contract::SWAP_REPLY_ID;
-use crate::helpers::{validate_is_contract_owner, validate_pool_route, generate_swap_msg};
-use crate::state::{ROUTING_TABLE};
+use crate::helpers::{generate_swap_msg, validate_is_contract_owner, validate_pool_route};
+use crate::state::{ROUTING_TABLE, SWAP_REPLY_STATES, SwapMsgReplyState};
 use crate::ContractError;
 
 // set_route sets route for swaps. Only contract owner may execute this message.
@@ -67,6 +67,16 @@ pub fn swap(
         env.contract.address,
         input_coin,
         minimum_output_token,
+    )?;
+
+    // save intermediate state for reply
+    SWAP_REPLY_STATES.save(
+        deps.storage,
+        SWAP_REPLY_ID,
+        &SwapMsgReplyState {
+            original_sender: info.sender,
+            swap_msg: swap_msg.clone(),
+        },
     )?;
 
     Ok(Response::new()
