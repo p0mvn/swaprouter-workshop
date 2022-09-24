@@ -66,8 +66,9 @@ are available to jump to any specific point in the workshop.
 
 ### 0. Setup and Contract Boilerplate
 
-Goal: have a foundational structure of the CosmWasm contract generated with Beaker.
-We will go over this structure and understand the anatomy of a smart contract.
+**Goals**:
+- Have a foundational structure of the CosmWasm contract generated with Beaker.
+- Understand the anatomy of a smart contract.
 
 #### Step 1: Let’s generate and build a new CosmWasm project with Beaker
 
@@ -175,7 +176,8 @@ TODO: compare to Ethereum, common pitfalls and protection from reentrancy attack
 
 ### 1. Complete Instantiate Message and Write Out Stubs
 
-Goal: finish the implementation of `InstantiateMsg` and outline the stubs for all other messages.
+**Goals**:
+- Finish the implementation of `InstantiateMsg` and outline the stubs for all other messages.
 
 If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/1-instantiate-msg-stubs
 
@@ -396,7 +398,8 @@ pub fn instantiate(
 
 ### 2. Implement Set Route Message
 
-Goal: fully-functional `SetRoute` messages. Short intro to `osmosis-testing`. 
+**Goals**:
+- Fully-functional `SetRoute` messages. Short intro to `osmosis-testing`. 
 
 If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/2-set-route-msg
 
@@ -553,7 +556,8 @@ that forces users to define mocks.
 
 ### 3. Implement Queries
 
-Goal: implement queries and write up basic test for `InstantiateMsg` by utilizing the queries.
+**Goals**:
+- Implement queries and write up basic test for `InstantiateMsg` by utilizing the queries.
 
 If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/3-queries
 
@@ -622,5 +626,12 @@ mod tests {
 ```
 
 ### 4. Implement Basic Swap Message
+
+**Goals**:
+- Implement `ExecuteMsg::Swap` that performs a basic `SwapExactAmountIn` swap (w/o price impact)
+- Understand the semantics of the single-asset swap in Osmosis
+- Learn how to interact with the Osmosis chain from CosmWasm 
+
+If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/blob/checkpoint/4-swap-msg
 
 ### 5. Final Result: Swap with Maximum Price Impact Percentage
