@@ -29,7 +29,7 @@ and many many others.
 ## Workshop Goals
 
 - Understanding CosmWasm Fundamentals.
-- Getting familiar with reply messages.
+- Getting familiar with reply message.
 - Utilizing [osmosis-rust](https://github.com/osmosis-labs/osmosis-rust)
     * [osmosis-std](https://github.com/osmosis-labs/osmosis-rust/tree/main/packages/osmosis-std)
     * [osmosis-testing](https://github.com/osmosis-labs/osmosis-rust/tree/main/packages/osmosis-std)
@@ -552,6 +552,74 @@ to realistically check that all of the messages are functioning as expected cont
 that forces users to define mocks.  
 
 ### 3. Implement Queries
+
+Goal: implement queries and write up basic test for `InstantiateMsg` by utilizing the queries.
+
+If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/3-queries
+
+Let's beging by going to the earlier created `query.rs` where we have 2 stubs.
+
+- `query_owner` - needs to return the owner from the state
+
+```rust
+// query_owner returns contracr owner. Returns error on storage failure.
+pub fn query_owner(deps: Deps) -> StdResult<GetOwnerResponse> {
+    let owner = OWNER.load(deps.storage)?;
+    Ok(GetOwnerResponse {
+        owner: owner.into_string(),
+    })
+}
+```
+
+- `query_route` - returns query route from the state given denoms.
+
+```rust
+// query_route returns query route for given
+// input and output denoms.
+// Returns error on any storage failure.
+pub fn query_route(
+    deps: Deps,
+    input_denom: String,
+    output_denom: String,
+) -> StdResult<GetRouteResponse> {
+    let route = ROUTING_TABLE.load(deps.storage, (&input_denom, &output_denom))?;
+    Ok(GetRouteResponse { pool_route: route })
+}
+```
+
+Query implementations are now completed.
+
+Let'go back to `contract.rs` and write a basic unit test for the `InstantiateMsg`
+by utilizing `query_owner`. At the bottom of the file add:
+
+```rust
+#[cfg(test)]
+mod tests {
+    use crate::msg::GetOwnerResponse;
+
+    use super::*;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info, MOCK_CONTRACT_ADDR};
+    use cosmwasm_std::{coins, from_binary};
+
+    #[test]
+    fn instantiate_works() {
+        let mut deps = mock_dependencies();
+
+        let msg = InstantiateMsg {
+            owner: String::from(MOCK_CONTRACT_ADDR),
+        };
+        let info = mock_info("creator", &coins(1000, "earth"));
+
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+
+        // make sure that the owner was set correctly.
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
+        let value: GetOwnerResponse = from_binary(&res).unwrap();
+        assert_eq!(MOCK_CONTRACT_ADDR, value.owner);
+    }
+}
+```
 
 ### 4. Implement Basic Swap Message
 
