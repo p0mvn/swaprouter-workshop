@@ -267,6 +267,8 @@ need to handle these messages in `contract.rs`. We will address that
 right after.
 
 ```rust
+use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
+
 /// Message type for `instantiate` entry_point
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -348,6 +350,17 @@ pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
 }
 ```
 
+Note that in the previous step we brought in the following struct into the scope:
+```rust
+use osmosis_std::types::osmosis::gamm::v1beta1::SwapAmountInRoute;
+```
+
+Essentially, this translates directly into the Osmosis proto definition that we use on chain.
+We import it from the `osmosis_std` crate of the `osmosis-rust` repository.
+
+By having these interoperable struct defintions, we will be able to easily call into the Osmosis
+chain messages to perform a swap later in the workshop.
+
 As the last step for the completion of this checkpoint, we are going to fully implement
 the `InstantiateMsg`. For that, we need to define the state of the contract for 
 persisting the contract owner. In `state.rs` add:
@@ -382,6 +395,161 @@ pub fn instantiate(
 ```
 
 ### 2. Implement Set Route Message
+
+Goal: fully-functional `SetRoute` messages. Short intro to `osmosis-testing`. 
+
+If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/2-set-route-msg
+
+Completing the implementation is as simple as filling in the blank stub of the
+`set_route` handler in `execute.rs` that we created in the previous checkpoint.
+
+Let's begin by defining the function spec to understand what we need to do.
+In `execute.rs`:
+
+```rust
+// set_route sets route for swaps. Only contract owner may execute this message.
+// Returns response with attributes on success.
+// Errors if:
+// - executed by anyone other than the owner
+// - invalid pool route given
+//
+// Example 1 (one-hop):
+// OSMO -> ATOM
+// input: OSMO
+// OUTPUT: ATOM
+// ROUTE = [ { pool_id: 1, token_out_denom: ATOM } ]
+//
+// Example 2 (multi-hop):
+// OSMO -> ATOM -> STAKE
+// input: OSMO
+// OUTPUT: ATOM
+// ROUTE = [ { pool_id: 1, token_out_denom: ATOM }, { pool_id: 2, token_out_denom: STAKE } ]
+pub fn set_route(...) {
+    ...
+}
+```
+
+So we need to store the route in the contract state. Let's define it in `state.rs`:
+
+```rust
+pub const ROUTING_TABLE: Map<(&str, &str), Vec<SwapAmountInRoute>> = Map::new("routing_table");
+```
+
+Now, we are ready to dive into the implementation of `set_route`:
+
+```rust
+pub fn set_route(
+    deps: DepsMut,
+    info: MessageInfo,
+    input_denom: String,
+    output_denom: String,
+    pool_route: Vec<SwapAmountInRoute>,
+) -> Result<Response, ContractError> {
+    // Make sure that sender is contract owner.
+    validate_is_contract_owner(deps.as_ref(), info.sender)?;
+
+    // Validate that pool route is valid.
+    validate_pool_route(
+        deps.as_ref(),
+        input_denom.clone(),
+        output_denom.clone(),
+        pool_route.clone(),
+    )?;
+
+    // Save the route to the routing table.
+    ROUTING_TABLE.save(deps.storage, (&input_denom, &output_denom), &pool_route)?;
+
+    // Response of success. 
+    Ok(Response::new().add_attribute("action", "set_route"))
+}
+```
+
+Implement each helper in `helpers.rs`:
+
+```rust
+// validate_is_contract_owner validates if sender is the contract owner.
+// Returns success if sender is the owner, error otherwise.
+pub fn validate_is_contract_owner(deps: Deps, sender: Addr) -> Result<(), ContractError> {
+    let owner = OWNER.load(deps.storage).unwrap();
+    if owner != sender {
+        Err(ContractError::Unauthorized {})
+    } else {
+        Ok(())
+    }
+}
+
+// validate_pool_route validates if the pool route is valid.
+// Returns success if it is, error otherwise.
+pub fn validate_pool_route(
+    deps: Deps,
+    input_denom: String,
+    output_denom: String,
+    pool_route: Vec<SwapAmountInRoute>,
+) -> Result<(), ContractError> {
+    let mut current_denom_in = input_denom;
+
+    // Iterate over each route
+    for route_part in &pool_route {
+        // Query liqudity of the pool id specified by the route
+        // from the Osmosis chain.
+        let liquidity = QueryTotalPoolLiquidityRequest {
+            pool_id: route_part.pool_id,
+        }
+        .query(&deps.querier)?
+        .liquidity;
+
+        // If the current denom to swap in does not match any of the denoms
+        // in the pool, return error.
+        if !liquidity.iter().any(|coin| coin.denom == current_denom_in) {
+            return Result::Err(ContractError::InvalidPoolRoute {
+                reason: format!(
+                    "denom {} is not in pool id {}",
+                    current_denom_in, route_part.pool_id
+                ),
+            });
+        }
+
+        // If the denom to swap out does not match any of the denoms in the pool,
+        // return error.
+        if !liquidity
+            .iter()
+            .any(|coin| coin.denom == route_part.token_out_denom)
+        {
+            return Result::Err(ContractError::InvalidPoolRoute {
+                reason: format!(
+                    "denom {} is not in pool id {}",
+                    current_denom_in, route_part.pool_id
+                ),
+            });
+        }
+
+        // The denom to swap in for the next route is the denom
+        // out for the current route.
+        current_denom_in = route_part.token_out_denom.clone();
+    }
+
+    // Make sure the final route output asset is the same as the expected output_denom
+    if current_denom_in != output_denom {
+        return Result::Err(ContractError::InvalidPoolRoute {
+            reason: "last denom doesn't match".to_string(),
+        });
+    }
+
+    Ok(())
+}
+```
+
+Now, we are ready to test this message with `osmosis-testing`. We omit listing details in this README.
+However, there are 2 relevant files on the checkpoint 2 branch:
+
+- [`set_route_test.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/checkpoint/2-set-route-msg/contracts/swaprouter/tests/set_route_test.rs)
+    * Actual tests
+- [`test_env.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/checkpoint/2-set-route-msg/contracts/swaprouter/tests/test_env.rs)
+    * Setup logic
+
+Essentially, `osmosis-testing` spins up an actual test Osmosis application in the background. That allows us
+to realistically check that all of the messages are functioning as expected contrary to the original `cw_multitest` approach
+that forces users to define mocks.  
 
 ### 3. Implement Queries
 
