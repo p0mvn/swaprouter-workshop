@@ -64,6 +64,14 @@ are available to jump to any specific point in the workshop.
 - [4. Implement Basic Swap Message](https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/4-swap-msg)
 - [5. Final Result: Swap with Maximum Price Impact Percentage](https://github.com/p0mvn/swaprouter-workshop)
 
+## FAQ
+
+TODO: think about more common questions and answers
+
+- How do I add a dependency to my contract?
+
+- What versions of `osmosis_std` and `osmosis_rust should I use?
+
 ### 0. Setup and Contract Boilerplate
 
 **Goals**:
@@ -552,7 +560,11 @@ However, there are 2 relevant files on the checkpoint 2 branch:
 
 Essentially, `osmosis-testing` spins up an actual test Osmosis application in the background. That allows us
 to realistically check that all of the messages are functioning as expected contrary to the original `cw_multitest` approach
-that forces users to define mocks.  
+that forces users to define mocks.
+
+With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
+- `cargo wasm` to build the contract
+- `cargo test` to run the osmosis tests
 
 ### 3. Implement Queries
 
@@ -964,4 +976,90 @@ pub fn swap(
 }
 ```
 
+Lastly, let's implement `calculate_min_output_from_twap` function in `helpers.rs`
+for the new swap type:
 
+TODO: break down the implementation more
+
+```rust
+pub fn calculate_min_output_from_twap(
+    deps: Deps,
+    input_token: Coin,
+    output_denom: String,
+    now: Timestamp,
+    percentage_impact: Decimal,
+) -> Result<Coin, ContractError> {
+    // get trade route
+    let route = ROUTING_TABLE.load(deps.storage, (&input_token.denom, &output_denom))?;
+    if route.is_empty() {
+        return Err(ContractError::InvalidPoolRoute {
+            reason: format!("No route foung for {} -> {output_denom}", input_token.denom),
+        });
+    }
+
+    let percentage = percentage_impact.div(Uint128::new(100));
+
+    let mut twap_price: Decimal = Decimal::one();
+
+    // When swapping from input to output, we need to quote the price in the input token
+    // For example when selling uosmo to buy uion:
+    // price of <out> is X<in> (i.e.: price of uion is X uosmo)
+    let mut quote_denom = input_token.denom;
+
+    let start_time = now.minus_seconds(1);
+    let start_time = OsmosisTimestamp {
+        seconds: start_time.seconds() as i64,
+        nanos: 0_i32,
+    };
+
+    for route_part in route {
+        deps.api.debug(&format!("route part: {route_part:?}"));
+
+        let twap = TwapQuerier::new(&deps.querier)
+            .arithmetic_twap_to_now(
+                route_part.pool_id,
+                route_part.token_out_denom.clone(), // base_asset
+                quote_denom.clone(),                // quote_asset
+                Some(start_time.clone()),
+            )?
+            .arithmetic_twap;
+
+        deps.api.debug(&format!("twap = {twap}"));
+
+        let current_twap: Decimal = twap.parse().map_err(|_e| ContractError::CustomError {
+            val: "Invalid twap value received from the chain".to_string(),
+        })?;
+
+        twap_price = twap_price.checked_mul(current_twap.into()).map_err(|_e| {
+            ContractError::CustomError {
+                val: format!("Invalid value for twap price: {twap_price} * {twap}"),
+            }
+        })?;
+
+        // the current output is the input for the next route_part
+        quote_denom = route_part.token_out_denom;
+    }
+
+    twap_price = twap_price - twap_price.mul(percentage);
+    deps.api.debug(&format!(
+        "twap_price minus {percentage_impact}%: {twap_price}"
+    ));
+
+    let min_out: Uint128 = input_token.amount.mul(twap_price);
+    deps.api.debug(&format!("min: {min_out}"));
+
+    Ok(Coin::new(min_out.into(), output_denom))
+}
+```
+
+Now, we are ready to test this message with `osmosis-testing`. We omit listing details in this README.
+However, there are 2 relevant files on the checkpoint 2 branch:
+
+- [`set_route_test.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/swap_test.rs)
+    * Actual tests
+- [`test_env.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/test_env.rs)
+    * Setup logic
+
+With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
+- `cargo wasm` to build the contract
+- `cargo test` to run the osmosis tests
