@@ -118,19 +118,41 @@ today:
 
 1. `instantiate`
 
-TODO: explain
+When contract's code is already uploaded to the chain. It needs to be instantiated to initialize state.
+This entypoint takes a respective `InstantiateMsg` and executes it. It is the first message that is run for the contract, and it can only be run once.
 
 2. `execute`
 
-TODO: explain
+After a contract is initialized with the `InstantiateMsg` we can continue running other defined
+execute messages. This entrypoint takes these execute messages and propagates them to the
+relevant entrypoint.
 
 3. `query`
 
-TODO: explain
+There are times when clients need to know the state of the contract. This entrypoint takes
+relevant messages so that users can query the state of the contract.
 
 4. `reply`
 
-TODO: explain
+Due to the architecture necessary to protect against re-entrancy attacks (to be discussed later),
+it was originally impossible to receive replies from the messages executes from within the contract.
+
+This entrypoint was later introduced to help with receiving replies. 
+Code in the reply entrypoint is comparable to a callback function running after
+some asyncronous logic is executed.
+
+For example, in our workshop we are going to send a message to the Osmosis chain to swap some tokens.
+We will need to know how many tokens we will receive in return.
+
+Therefore, we will issue a swap message from a relevant `ExecuteMsg` and then receive the
+result of the swap in the `reply` entrypoint.
+
+CosmWasm enables this functionality by wrapping a `CosmosMsg` (swap message) into a submessage.
+Submessage has a cache context so if it fails, it can rollback any changes that were made earleir
+and fail the whole transaction. There are certain edge cases where the submessages do not fail
+depending on the kind of the reply handler so please see the following for more info:
+
+https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages
 
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
@@ -157,7 +179,7 @@ Goal: finish the implementation of `InstantiateMsg` and outline the stubs for al
 
 #### User Stories
 
-Let's begin by undrstanding the requirements.
+Let's begin by understanding the requirements.
 
 1. As a contract owner, I would like to have exclusive access to set trading routes so that I can be the only one with privileges of limiting trades to tokens needed by my application
 
@@ -186,8 +208,6 @@ Need:
     So we need to send a swap message to it and receive a reply, all in
     one transaction.
 
-TODO: is this the place to dive deeper into reply messages?
-
 
 3. As a contract user, I would like to be able to trade with maximum price impact so that my large
 trades do not affect the market too much.
@@ -197,6 +217,167 @@ Need:
 - Improve `ExecuteMsg::Swap` to support a new trade type with max price impact.
     * Fully implemented in checkpoint 5 (latest state of the repository).
 
+Based on the above requirements, let's outline all the logic that we require.
+
+Each `QueryMsg` and `ExecuteMsg` need to have a relevant handler function.
+Therefore, let's proceed by defining them all.
+
+There are 2 `ExecuteMsg`s - `SetRoute` and `Swap`. So, in `execute.rs` we
+define the rough stub handlers for them. Note that they might change as
+we progress with the workshop.
+
+```rust
+pub fn set_route(
+    _input_denom: String,
+    _output_denom: String,
+    _pool_route: Vec<SwapAmountInRoute>,
+) -> Result<Response, ContractError> {
+    Ok(Response::default())
+}
+
+pub fn swap(
+    _input_coin: Coin,
+    _output_denom: String,
+    _minimum_output_amount: Uint128,
+) -> Result<Response, ContractError> {
+    Ok(Response::default())
+}
+```
+
+Similarly, there are 2 query messages so we define their stub handlers
+in `query.rs`:
+
+```rust
+pub fn query_owner() -> StdResult<GetOwnerResponse> {
+    Ok(GetOwnerResponse {
+        owner: String::default(),
+    })
+}
+
+pub fn query_route(input_denom: String, output_denom: String) -> StdResult<GetRouteResponse> {
+    Ok(GetRouteResponse { pool_route: vec![] })
+}
+```
+
+Now, we are ready to outline the actual messages in `msg.rs`. Note that
+upon defining them as below, you will get compilation errors due to the
+need to handle these messages in `contract.rs`. We will address that
+right after.
+
+```rust
+/// Message type for `instantiate` entry_point
+#[cw_serde]
+pub struct InstantiateMsg {
+    pub owner: String,
+}
+
+/// Message type for `execute` entry_point
+#[cw_serde]
+pub enum ExecuteMsg {
+    SetRoute {
+        input_denom: String,
+        output_denom: String,
+        pool_route: Vec<SwapAmountInRoute>,
+    },
+    Swap {
+        input_coin: Coin,
+        output_denom: String,
+        minimum_output_amount: Uint128,
+    },
+}
+
+/// Message type for `query` entry_point
+#[cw_serde]
+#[derive(QueryResponses)]
+pub enum QueryMsg {
+    #[returns(GetOwnerResponse)]
+    GetOwner {},
+    #[returns(GetRouteResponse)]
+    GetRoute {
+        input_denom: String,
+        output_denom: String,
+    },
+}
+
+#[cw_serde]
+pub struct GetOwnerResponse {
+    pub owner: String,
+}
+
+#[cw_serde]
+pub struct GetRouteResponse {
+    pub pool_route: Vec<SwapAmountInRoute>,
+}
+```
+
+With the messaged defined, we can proceed by connecting them to
+the handlers in `contract.rs`:
+
+```rust
+/// Handling contract execution
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn execute(
+    _deps: DepsMut,
+    _env: Env,
+    _info: MessageInfo,
+    msg: ExecuteMsg,
+) -> Result<Response, ContractError> {
+    match msg {
+        ExecuteMsg::SetRoute {
+            input_denom,
+            output_denom,
+            pool_route,
+        } => set_route(input_denom, output_denom, pool_route),
+        ExecuteMsg::Swap {
+            input_coin,
+            output_denom,
+            minimum_output_amount,
+        } => swap(input_coin, output_denom, minimum_output_amount),
+    }
+}
+
+/// Handling contract query
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    match msg {
+        QueryMsg::GetOwner {} => to_binary(&query_owner()?),
+        QueryMsg::GetRoute { input_denom, output_denom } => to_binary(&query_route(input_denom, output_denom)?),
+    }
+}
+```
+
+As the last step for the completion of this checkpoint, we are going to fully implement
+the `InstantiateMsg`. For that, we need to define the state of the contract for 
+persisting the contract owner. In `state.rs` add:
+
+```rust
+pub const OWNER: Item<Addr> = Item::new("owner");
+```
+
+Go back to `contract.rs` and implement the `instantiate` entrypoint:
+
+```rust
+/// Handling contract instantiation
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn instantiate(
+    deps: DepsMut,
+    _env: Env,
+    info: MessageInfo,
+    msg: InstantiateMsg,
+) -> Result<Response, ContractError> {
+    set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+
+    let owner_address = deps.api.addr_validate(&msg.owner)?;
+
+    OWNER.save(deps.storage, &owner_address)?;
+
+    // With `Response` type, it is possible to dispatch message to invoke external logic.
+    // See: https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#dispatching-messages
+    Ok(Response::new()
+        .add_attribute("method", "instantiate")
+        .add_attribute("owner", info.sender))
+}
+```
 
 ### 2. Implement Set Route Message
 
