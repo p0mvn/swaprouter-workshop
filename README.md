@@ -177,6 +177,8 @@ TODO: compare to Ethereum, common pitfalls and protection from reentrancy attack
 
 Goal: finish the implementation of `InstantiateMsg` and outline the stubs for all other messages.
 
+If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/1-instantiate-msg-stubs
+
 #### User Stories
 
 Let's begin by understanding the requirements.
