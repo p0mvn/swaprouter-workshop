@@ -734,7 +734,7 @@ pub fn swap(
     Ok(Response::new()
         .add_attribute("action", "swap")
         // add sub message with reply on success. See reply entrypoint for the continuation of the flow.
-        .add_submessage(SubMsg::reply_on_success(swap_msg, SWAP_REPLY_ID)))
+        .add_submessage(SubMsg::reply_on_success(swap_msg, SWAP_REPLY_ID))) // SWAP_REPLY_ID is defined in `contract.rs` in future steps
 }
 ```
 
@@ -774,6 +774,11 @@ Therefore, the first thing that we need to do is check that we receive the desir
 it to the appropriate handler. In `contract.rs`:
 
 ```rust
+// Msg Reply IDs
+pub const SWAP_REPLY_ID: u64 = 1u64;
+
+...
+
 /// Handling submessage reply.
 /// For more info on submessage and reply, see https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#submessages
 #[cfg_attr(not(feature = "library"), entry_point)]
