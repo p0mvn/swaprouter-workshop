@@ -908,4 +908,22 @@ diff in [this pull-request](https://github.com/p0mvn/swaprouter-workshop/pull/21
 
 Let's represent the additional swap type by updating the message in `msg.rs`:
 
-![msg.rs](img/msg.png "New Swap Type")
+```diff
+#[cw_serde]
+pub enum ExecuteMsg {
+    ...
+    Swap {
+        input_coin: Coin,
+        output_denom: String,
+        - minimum_output_amount: Uint128,
+        +swap_type: SwapType,
+    },
+}
+
++#[cw_serde]
++pub enum SwapType {
++    MaxPriceImpactPercentage(Decimal),
++    MinOutputAmount(Uint128),
++}
+```
+
