@@ -628,10 +628,114 @@ mod tests {
 ### 4. Implement Basic Swap Message
 
 **Goals**:
-- Implement `ExecuteMsg::Swap` that performs a basic `SwapExactAmountIn` swap (w/o price impact)
 - Understand the semantics of the single-asset swap in Osmosis
+- Implement `ExecuteMsg::Swap` that performs a basic `SwapExactAmountIn` swap (w/o price impact)
+- Imp
 - Learn how to interact with the Osmosis chain from CosmWasm 
 
 If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/blob/checkpoint/4-swap-msg
+
+#### Swap Message Semantics
+
+Before we proceed with the implementation, let's take a step back and understand the semantics 
+of the swap that we are going to work with.
+
+As it stands today, Osmosis is a constant product function AMM based on the balancer design.
+
+We are going to focus on the [`SwapExactAmountIn`](https://docs.osmosis.zone/osmosis-core/modules/spec-gamm/#swap-exact-amount-in) swap. The semantics of this swap are as follows:
+
+> Swap an **exact** amount of tokens for a **minimum** of another token.
+
+We are going to issue the following message to the Osmosis chain:
+https://github.com/osmosis-labs/osmosis/blob/18d70da2a881f3a938975d7cc55a9107edef6212/proto/osmosis/gamm/v1beta1/tx.proto#L68-L80
+
+Again, `osmosis_std`'s proto bindings are going to help us with that.
+
+#### Implementation
+
+As discussed previously, we will need to utilize the reply
+entrypoint and CosmWasm submessages in order to receive the
+swap reply from the Osmosis chain, all trigerred by `ExecuteMsg::Swap`.
+
+- **`ExecuteMsg::Swap`**
+
+Similarly to `ExecuteMsg::SetRoute`, let's begin by understanding
+what we want our swap handler to do.
+
+```rust
+// swap initiates an Osmosis swap message of the input_coin to at least
+// minimum_output_token of another coin. Wraps the message into
+// CosmWasm swap message to receive reply from the respective entrypoint.
+// Returns error if:
+// - funds sent in by the initiator do no match the input_coin.
+// - fails to generate the message.
+pub fn swap(...) {
+    // check if the sender has funds equal to input coind
+
+    // generate the Osmosis swap message
+
+    // return success with added swap submessage.
+    // this submessage will get propagated to the reply entrypoint.
+}
+```
+
+Awesome! Let's now translate this into code in `execute.rs`
+
+```rust
+pub fn swap(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_coin: Coin,
+    minimum_output_token: Coin,
+) -> Result<Response, ContractError> {
+    if !has_coins(&info.funds, &input_coin) {
+        return Err(ContractError::InsufficientFunds {});
+    }
+
+    // generate the swap message using osmosis-rust (osmosis_std).
+    let swap_msg = generate_swap_msg(
+        deps.as_ref(),
+        env.contract.address,
+        input_coin,
+        minimum_output_token,
+    )?;
+
+    Ok(Response::new()
+        .add_attribute("action", "swap")
+        // add sub message with reply on success. See reply entrypoint for the continuation of the flow.
+        .add_submessage(SubMsg::reply_on_success(swap_msg, SWAP_REPLY_ID)))
+}
+```
+
+While `has_coins` is a helper that can be imported from `cosmwasm_std`,
+we need to define `generate_swap_msg` ourselves in `helpers.rs`:
+
+
+```rust
+// generate_swap_msg generates and returns an Osmosis
+// MsgSwapExactAmountIn with sender, input token and min_output_token.
+// Returns error if there is no supported route
+// between input_token and min_output_token.
+pub fn generate_swap_msg(
+    deps: Deps,
+    sender: Addr,
+    input_token: Coin,
+    min_output_token: Coin,
+) -> Result<MsgSwapExactAmountIn, ContractError> {
+    // get trade route
+    let route = ROUTING_TABLE.load(deps.storage, (&input_token.denom, &min_output_token.denom))?;
+
+    Ok(MsgSwapExactAmountIn {
+        sender: sender.into_string(),
+        routes: route,
+        token_in: Some(input_token.into()),
+        token_out_min_amount: min_output_token.amount.to_string(),
+    })
+}
+```
+
+- **Implement Reply Entrypoint**
+
 
 ### 5. Final Result: Swap with Maximum Price Impact Percentage
