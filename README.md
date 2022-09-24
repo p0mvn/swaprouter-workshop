@@ -872,3 +872,40 @@ functionality layed out. The remaining logic is adding price impact limit
 functionality to the contract.
 
 ### 5. Final Result: Swap with Maximum Price Impact Percentage
+
+**Goals**:
+- Understand and utilize TWAP.
+- Implement swap with the max price impact.
+
+If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/main
+
+#### What is TWAP
+
+TWAP - Time Weighted Average Price. It is a price feed that provides smart contracts
+with prices that are **manipulation resistant**.
+
+The details are outside of scope of this tutorial but, basically, we don't want to use
+real-time prices for security reasons. Instead, we use the time weighted prices
+that are more difficult to manipulate.
+
+More information about this can be found [here](https://soliditydeveloper.com/uniswap-oracle)
+
+#### What Is Price Impact
+
+Price impact is how much your sell/buy will impact the liquidity pool.
+
+For some of the applications such as collateralized loans, it is common to
+require to execute large trades. To avoid impacting the market, these
+applications might want to set a maximum price impact ratio.
+
+#### Implementation
+
+Implementation is about refactoring our `ExecuteMsg::Swap` to now support
+an additional trade swap type.
+
+Since this change is a large refactor, it might be easier to refer to the
+diff in [this pull-request](https://github.com/p0mvn/swaprouter-workshop/pull/21/files) 
+
+Let's represent the additional swap type by updating the message in `msg.rs`:
+
+![msg.rs](img/msg.png "New Swap Type")
