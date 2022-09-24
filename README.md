@@ -915,8 +915,8 @@ pub enum ExecuteMsg {
     Swap {
         input_coin: Coin,
         output_denom: String,
-        - minimum_output_amount: Uint128,
-        +swap_type: SwapType,
+-        minimum_output_amount: Uint128,
++        swap_type: SwapType,
     },
 }
 
