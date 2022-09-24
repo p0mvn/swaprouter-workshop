@@ -737,5 +737,31 @@ pub fn generate_swap_msg(
 
 - **Implement Reply Entrypoint**
 
+Hopefully, by now you have a good understanding of why we need the reply entrypoint.
+Now, we are going to discuss the implementation.
+
+While in our contract, we only have one reply message, for bigger contracts, it is well possible to have several.
+Therefore, the first thing that we need to do is check that we receive the desired reply message and propagate
+it to the appropriate handler. In `contract.rs`:
+
+```rust
+/// Handling submessage reply.
+/// For more info on submessage and reply, see https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#submessages
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn reply(deps: DepsMut, _env: Env, msg: Reply) -> Result<Response, ContractError> {
+    if msg.id == SWAP_REPLY_ID {
+        // get intermediate swap reply state. Error if not found.
+        let swap_msg_state = SWAP_REPLY_STATES.load(deps.storage, msg.id)?;
+
+        // prune intermedate state
+        SWAP_REPLY_STATES.remove(deps.storage, msg.id);
+
+        // call reply function to handle the swap return
+        handle_swap_reply(msg, swap_msg_state)
+    } else {
+        Ok(Response::new())
+    }
+}
+```
 
 ### 5. Final Result: Swap with Maximum Price Impact Percentage
