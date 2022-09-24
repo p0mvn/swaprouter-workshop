@@ -927,3 +927,41 @@ pub enum ExecuteMsg {
 +}
 ```
 
+There are more updates that we will need to do in `contracts.rs` that are omitted from the guide.
+Again, refer to [this pull-request](https://github.com/p0mvn/swaprouter-workshop/pull/21/files) for details.
+
+In the meantime, we will move directly to updating the `swap` handler in `execute.rs`:
+
+```diff
+pub fn swap(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    input_coin: Coin,
+-    minimum_output_token: Coin,
++    output_denom: String,
++    swap_type: SwapType,
+) -> Result<Response, ContractError> {
+    if !has_coins(&info.funds, &input_coin) {
+        return Err(ContractError::InsufficientFunds {});
+    }
+
++    // get minimum output coin from swap type.
++    let minimum_output_token = match swap_type {
++        SwapType::MaxPriceImpactPercentage(percentage) => calculate_min_output_from_twap(
++            deps.as_ref(),
++            input_coin.clone(),
++            output_denom,
++            env.block.time,
++            percentage,
++        )?,
++        SwapType::MinOutputAmount(minimum_output_amount) => {
++            coin(minimum_output_amount.u128(), output_denom)
++        }
++    };
+
+    ...
+}
+```
+
+
