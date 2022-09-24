@@ -674,12 +674,32 @@ pub fn swap(...) {
 
     // generate the Osmosis swap message
 
+    // persist some intermediate state to later receive in the reply entrypoint
+
     // return success with added swap submessage.
     // this submessage will get propagated to the reply entrypoint.
 }
 ```
 
-Awesome! Let's now translate this into code in `execute.rs`
+Awesome! Note that we will need some intermediary state persisted
+between the swap caller and the reply entrypoint. This is because
+the Osmosis chain does not return all of the inputs to the swap message.
+
+So, in `state.rs.` we add:
+
+```rust
+#[cw_serde]
+pub struct SwapMsgReplyState {
+    pub original_sender: Addr,
+    pub swap_msg: MsgSwapExactAmountIn,
+}
+
+...
+// SWAP_REPLY_STATES persists data from swap message creation until the reply receipt.
+pub const SWAP_REPLY_STATES: Map<u64, SwapMsgReplyState> = Map::new("swap_reply_states");
+```
+
+Let's now translate the swam handler comments into code in `execute.rs`
 
 ```rust
 pub fn swap(
@@ -701,6 +721,16 @@ pub fn swap(
         minimum_output_token,
     )?;
 
+    // save intermediate state for reply
+    SWAP_REPLY_STATES.save(
+        deps.storage,
+        SWAP_REPLY_ID,
+        &SwapMsgReplyState {
+            original_sender: info.sender,
+            swap_msg: swap_msg.clone(),
+        },
+    )?;
+
     Ok(Response::new()
         .add_attribute("action", "swap")
         // add sub message with reply on success. See reply entrypoint for the continuation of the flow.
@@ -710,7 +740,6 @@ pub fn swap(
 
 While `has_coins` is a helper that can be imported from `cosmwasm_std`,
 we need to define `generate_swap_msg` ourselves in `helpers.rs`:
-
 
 ```rust
 // generate_swap_msg generates and returns an Osmosis
@@ -763,5 +792,7 @@ pub fn reply(deps: DepsMut, _env: Env, msg: Reply) -> Result<Response, ContractE
     }
 }
 ```
+
+- TODO: explain SWAP_REPLY_STATES and add them to the branch
 
 ### 5. Final Result: Swap with Maximum Price Impact Percentage
