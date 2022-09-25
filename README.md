@@ -698,6 +698,7 @@ We are going to focus on the [`SwapExactAmountIn`](https://docs.osmosis.zone/osm
 > Swap an **exact** amount of tokens for a **minimum** of another token.
 
 We are going to issue the following message to the Osmosis chain:
+
 https://github.com/osmosis-labs/osmosis/blob/18d70da2a881f3a938975d7cc55a9107edef6212/proto/osmosis/gamm/v1beta1/tx.proto#L68-L80
 
 Again, `osmosis_std`'s proto bindings are going to help us with that.
