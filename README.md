@@ -38,13 +38,15 @@ and many many others.
 
 ## Prerequisites
 
-### Option 1: Quick Install with Osmosis Installer
+### Option 1: Quick Install with Osmosis Installer (Recommended)
 
-TODO
+TODO: Update installer, provide instructions here
 
 ### Option 2: Manual Install
 
-TODO
+Follow [this](https://docs.osmosis.zone/cosmwasm/local/localosmosis) guide from the Osmosis docs.
+
+See the versions of the tools required for this workshop in the FAQ section.
 
 ## CosmWasm Fundamentals
 
@@ -66,11 +68,19 @@ are available to jump to any specific point in the workshop.
 
 ## FAQ
 
-TODO: think about more common questions and answers
-
 - How do I add a dependency to my contract?
+    * Update contract's `Cargo.toml`
+    * [Example](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/Cargo.toml)
 
-- What versions of `osmosis_std` and `osmosis_rust should I use?
+- What versions of `osmosis_std` and `osmosis_rust` should I use?
+    * `osmosis-std = {git = "https://github.com/osmosis-labs/osmosis-rust", branch = "osmosis-v12-rc2"}`
+    * `osmosis-testing = {git = "https://github.com/osmosis-labs/osmosis-rust", branch = "main"}`
+
+- What version of Beaker should I use?
+    * [v0.1.0](https://github.com/osmosis-labs/beaker/releases/tag/v0.1.0)
+
+- What is the version of `Osmosis/LocalOsmosis`?
+    * [`v12.x`](https://github.com/osmosis-labs/osmosis/tree/v12.x/tests/localosmosis)
 
 ### 0. Setup and Contract Boilerplate
 
@@ -162,9 +172,7 @@ result of the swap in the `reply` entrypoint.
 CosmWasm enables this functionality by wrapping a `CosmosMsg` (swap message) into a submessage.
 Submessage has a cache context so if it fails, it can rollback any changes that were made earleir
 and fail the whole transaction. There are certain edge cases where the submessages do not fail
-depending on the kind of the reply handler so please see the following for more info:
-
-https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages
+depending on the kind of the reply handler so please read [this](https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages) if you are interested to learn more.
 
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
@@ -212,8 +220,6 @@ Sources:
 - [Security Benefits](https://docs.cosmwasm.com/docs/1.0/architecture/actor#security-benefits)
 - [Actor Framework](https://docs.cosmwasm.com/docs/1.0/actor-model/idea/)
 - [Comparison with Solidity](https://docs.cosmwasm.com/docs/1.0/architecture/smart-contracts/)
-
-TODO: compare to Ethereum, common pitfalls and protection from reentrancy attacks
 
 ### 1. Complete Instantiate Message and Write Out Stubs
 
@@ -1096,3 +1102,5 @@ However, there are 2 relevant files on the checkpoint 2 branch:
 With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
 - `cargo wasm` to build the contract
 - `cargo test` to run the osmosis tests
+
+TODO: Deployment section and instructions
