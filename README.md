@@ -77,8 +77,9 @@ TODO: think about more common questions and answers
 **Goals**:
 - Have a foundational structure of the CosmWasm contract generated with Beaker.
 - Understand the anatomy of a smart contract.
+- Learn about the core architecture and security benefits.
 
-#### Step 1: Let’s generate and build a new CosmWasm project with Beaker
+#### Generate a new CosmWasm Project with Beaker
 
 ```bash
 # Generate workspace
@@ -117,6 +118,8 @@ tree
 └── ts
     └── ...
 ```
+
+#### Anatomy of a CosmWasm Contract
 
 Let's go over the Rust files that we care about:
 
@@ -179,6 +182,36 @@ discussed earlier has its own set of messages.
 
 Defines the state of the smart contract. In this file, we will be defining the storage layout for
 persising any information across contract calls.
+
+
+#### Security Benefits
+
+- **Private internal state**
+   * In contrast to cosmos-sdk, where each module has read and write access to another module's store
+
+- **Serialized execution**
+   * Comparable to an automatic mutex over the contract code. Protects from re-entrancy attacks.
+
+- **Atomic Executiion**
+   * If a submessage fails, the whole transaction fails and the state is rolled back.
+
+A lot of these benefits are guaranteed by the "Actor Framework" architecture employed by CosmWasm.
+
+So what is this? The Actor is a single instantiation of a contract, which can perform several actions. When the actor finishes his job, he prepares a summary of it, which includes the list of things that have to be done, to complete the whole scheduled task.
+
+KFC analogy:
+- The restaurant (an actor)
+- Me making an order to the cashier of the restaurant (action)
+- The cashier takes an order (execute message) and tells the cook what to make (issue sub-message)
+- The cook notifies cashier once an order is ready (reply message)
+- If the cook does not have ingridients, my entire order is aborted like it never hapened (atomic execution)
+- Things happen in sequence
+- I don't have access to the internal state of the restaurant unless exposed by queries (private internal state). 
+
+Sources:
+- [Security Benefits](https://docs.cosmwasm.com/docs/1.0/architecture/actor#security-benefits)
+- [Actor Framework](https://docs.cosmwasm.com/docs/1.0/actor-model/idea/)
+- [Comparison with Solidity](https://docs.cosmwasm.com/docs/1.0/architecture/smart-contracts/)
 
 TODO: compare to Ethereum, common pitfalls and protection from reentrancy attacks
 
