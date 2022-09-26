@@ -172,9 +172,13 @@ result of the swap in the `reply` entrypoint.
 CosmWasm enables this functionality by wrapping a `CosmosMsg` (swap message) into a submessage.
 Submessage has a cache context so if it fails, it can rollback any changes that were made earleir
 and fail the whole transaction. There are certain edge cases where the submessages do not fail
-depending on the kind of the reply handler so please read [this](https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages) if you are interested to learn more.
+depending on the kind of the reply handler so please read [this CosmWasm SEMANTICS page](https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages) if you are interested to learn more.
 
-TODO: add the graph from the reply entrypoint
+Key points to note from the additional reading:
+
+> Submessages (and their replies) are all executed before any messages. They also follow the depth first rules as with messages. Here is a simple example. Contract A returns submessages S1 and S2, and message M1. Submessage S1 returns message N1. The order will be: S1, N1, reply(S1), S2, reply(S2), M1.
+
+> We do not drop reply data. If execute returns `data: Some(b"try 1")` and reply returns `data:  Some(b"try 2"), we return , reply will overwrite the data from execute.
 
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
