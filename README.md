@@ -174,6 +174,8 @@ Submessage has a cache context so if it fails, it can rollback any changes that 
 and fail the whole transaction. There are certain edge cases where the submessages do not fail
 depending on the kind of the reply handler so please read [this](https://github.com/CosmWasm/cosmwasm/blob/main/SEMANTICS.md#Submessages) if you are interested to learn more.
 
+TODO: add the graph from the reply entrypoint
+
 There are other entrypoints such as `migrate` that are outside of scope of this workshop.
 
 - `error.rs`
@@ -1102,4 +1104,47 @@ With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
 - `cargo wasm` to build the contract
 - `cargo test` to run the osmosis tests
 
-TODO: Deployment section and instructions
+## Deployment
+
+Finally, let's upload our contract and test it with LocalOsmosis and Beaker.
+
+### Start LocalOsmosis
+
+TODO: add instructions
+
+### Deploy to LocalOsmosis with Beaker
+
+```bash
+# Create a key that we are going to operate with.
+beaker key set lo-test1 "notice oak worry limit wrap speak medal online prefer cluster roof addict wrist behave treat actual wasp year salad speed social layer crew genius"
+
+# Deploy swaprouter contract. Owner is the address of an account that we created above.
+# N.B. Label is needed in case you happen to want to make a change and redeploy a new version of the contract.
+# Since contracts are immutable, you would increase the label by 1 and redeploy to operate on a new version.
+beaker wasm deploy swaprouter --signer-keyring lo-test1 --no-wasm-opt --raw '{ "owner": "osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks" }' --label 1
+```
+
+### Use Beaker to issue `ExecuteMsg::SetRoute`
+
+```bash
+beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "uion", "output_denom": "uatom", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uatom" } ] } }' --signer-keyring lo-test1 --label 1
+```
+
+### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxPriceImpactPercentage`
+
+```bash
+beaker wasm execute swaprouter
+```
+
+
+### Optional TODO: Create a test contract
+
+TODO: add link to docs page abou what's going on under the hood.
+
+TODO: ask boss to generate "cargo wasm" in root
+
+TODO: change to slippage
+
+TODO: FAQ for debugging logs
+
+TODO: add  acceptance criteria to each chceckpoint and run `cargo wasm` and it compiles
