@@ -40,7 +40,13 @@ and many many others.
 
 ### Option 1: Quick Install with Osmosis Installer (Recommended)
 
-TODO: Update installer, provide instructions here
+Start the installer with the following command:
+
+```bash
+bash <(curl -sL https://get.osmosis.zone/run)
+```
+
+Choose the LocalOsmosis option (3), and follow the prompts.
 
 ### Option 2: Manual Install
 
