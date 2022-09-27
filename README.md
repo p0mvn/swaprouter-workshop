@@ -1157,8 +1157,6 @@ beaker wasm execute swaprouter
 
 TODO: add link to docs page abou what's going on under the hood of beaker deploy
 
-TODO: ask boss to generate "cargo wasm" in root
-
 TODO: FAQ for debugging logs
 
 TODO: add  acceptance criteria to each chceckpoint and run `cargo wasm` and it compiles
