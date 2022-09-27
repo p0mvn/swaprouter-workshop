@@ -1167,7 +1167,7 @@ echo $CONTRACT_ADDR
 ### Issue `ExecuteMsg::SetRoute`
 
 ```bash
-beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "uion", "output_denom": "uatom", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uatom" } ] } }' --signer-account test1 --label 1
+beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "stake", "output_denom": "uion", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uion" } ] } }' --signer-account test1 --label 1
 ```
 
 ### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxSlippagePercentage`
