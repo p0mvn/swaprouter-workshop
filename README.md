@@ -12,7 +12,7 @@ Original authors:
 
 ## What Is This
 
-A contract that allows to swap an **exact** amount of tokens for a **minimum** of another token, similar to swapping a token on the trade screen GUI. While anyone can trade, only the contract owner can pre-define a swap route. Most importantly, traders are able to specify the **maximum price impact percentage** to avoid having large trades resulting in significant price fluctuations.
+A contract that allows to swap an **exact** amount of tokens for a **minimum** of another token, similar to swapping a token on the trade screen GUI. While anyone can trade, only the contract owner can pre-define a swap route. Most importantly, traders are able to specify the **maximum slippage percentage** to avoid having large trades resulting in significant price fluctuations.
 
 ## Why Do We Need This
 
@@ -70,7 +70,7 @@ are available to jump to any specific point in the workshop.
 - [2. Implement Set Route Message](https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/2-set-route-msg)
 - [3. Implement Queries](https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/3-queries)
 - [4. Implement Basic Swap Message](https://github.com/p0mvn/swaprouter-workshop/tree/checkpoint/4-swap-msg)
-- [5. Final Result: Swap with Maximum Price Impact Percentage](https://github.com/p0mvn/swaprouter-workshop)
+- [5. Final Result: Swap with Maximum Slippage Percentage](https://github.com/p0mvn/swaprouter-workshop)
 
 ## FAQ
 
@@ -272,12 +272,12 @@ Need:
     one transaction.
 
 
-3. As a contract user, I would like to be able to trade with maximum price impact so that my large
+3. As a contract user, I would like to be able to trade with maximum slippage so that my large
 trades do not affect the market too much.
 
 Need:
 
-- Improve `ExecuteMsg::Swap` to support a new trade type with max price impact.
+- Improve `ExecuteMsg::Swap` to support a new trade type with max slippage.
     * Fully implemented in checkpoint 5 (latest state of the repository).
 
 Based on the above requirements, let's outline all the logic that we require.
@@ -692,7 +692,7 @@ mod tests {
 
 **Goals**:
 - Understand the semantics of the single-asset swap in Osmosis
-- Implement `ExecuteMsg::Swap` that performs a basic `SwapExactAmountIn` swap (w/o price impact)
+- Implement `ExecuteMsg::Swap` that performs a basic `SwapExactAmountIn` swap (w/o slippage)
 - Imp
 - Learn how to interact with the Osmosis chain from CosmWasm 
 
@@ -930,14 +930,14 @@ pub fn handle_swap_reply(
 ```
 
 Checkpoint 4 should now be complete. At this point, we have all the core
-functionality layed out. The remaining logic is adding price impact limit
+functionality layed out. The remaining logic is adding slippage limit
 functionality to the contract.
 
-### 5. Final Result: Swap with Maximum Price Impact Percentage
+### 5. Final Result: Swap with Maximum Slippage Percentage
 
 **Goals**:
 - Understand and utilize TWAP.
-- Implement swap with the max price impact.
+- Implement swap with the max slippage.
 
 If you get stuck, see: https://github.com/p0mvn/swaprouter-workshop/tree/main
 
@@ -952,13 +952,19 @@ that are more difficult to manipulate.
 
 More information about this can be found [here](https://soliditydeveloper.com/uniswap-oracle)
 
-#### What Is Price Impact
+#### What Are Slippage and Price Impact
 
-Price impact is how much your sell/buy will impact the liquidity pool.
+Slippage refers to the change in price caused by the broad market
+movements.
+
+On the other hand, price impact is how much your sell/buy directly impacts the liquidity pool.
+
+Technically, we are working  with price impact throughout the contract. However, if we look at this abstraction from the user's perspective, they only care about the difference
+in price that they are getting broadly. Therefore, we call it slippage. 
 
 For some of the applications such as collateralized loans, it is common to
 require to execute large trades. To avoid impacting the market, these
-applications might want to set a maximum price impact ratio.
+applications might want to set a maximum price impact (slippage) ratio.
 
 #### Implementation
 
@@ -984,7 +990,7 @@ pub enum ExecuteMsg {
 
 +#[cw_serde]
 +pub enum SwapType {
-+    MaxPriceImpactPercentage(Decimal),
++    MaxSlippagePercentage(Decimal),
 +    MinOutputAmount(Uint128),
 +}
 ```
@@ -1010,7 +1016,7 @@ pub fn swap(
 
 +    // get minimum output coin from swap type.
 +    let minimum_output_token = match swap_type {
-+        SwapType::MaxPriceImpactPercentage(percentage) => calculate_min_output_from_twap(
++        SwapType::MaxSlippagePercentage(percentage) => calculate_min_output_from_twap(
 +            deps.as_ref(),
 +            input_coin.clone(),
 +            output_denom,
@@ -1140,7 +1146,7 @@ beaker wasm deploy swaprouter --signer-keyring lo-test1 --no-wasm-opt --raw '{ "
 beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "uion", "output_denom": "uatom", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uatom" } ] } }' --signer-keyring lo-test1 --label 1
 ```
 
-### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxPriceImpactPercentage`
+### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxSlippagePercentage`
 
 ```bash
 beaker wasm execute swaprouter
@@ -1149,11 +1155,9 @@ beaker wasm execute swaprouter
 
 ### Optional TODO: Create a test contract
 
-TODO: add link to docs page abou what's going on under the hood.
+TODO: add link to docs page abou what's going on under the hood of beaker deploy
 
 TODO: ask boss to generate "cargo wasm" in root
-
-TODO: change to slippage
 
 TODO: FAQ for debugging logs
 

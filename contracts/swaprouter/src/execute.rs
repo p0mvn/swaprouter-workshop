@@ -68,7 +68,7 @@ pub fn swap(
 
     // get minimum output coin from swap type.
     let minimum_output_token = match swap_type {
-        SwapType::MaxPriceImpactPercentage(percentage) => calculate_min_output_from_twap(
+        SwapType::MaxSlippagePercentage(percentage) => calculate_min_output_from_twap(
             deps.as_ref(),
             input_coin.clone(),
             output_denom,

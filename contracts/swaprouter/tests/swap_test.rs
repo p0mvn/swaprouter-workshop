@@ -87,7 +87,7 @@ test_swap!(
     msg = ExecuteMsg::Swap {
         input_coin: Coin::new(1000, "uosmo"),
         output_denom: "uion".to_string(),
-        swap_type: SwapType::MaxPriceImpactPercentage(Decimal::from_str("5").unwrap()),
+        swap_type: SwapType::MaxSlippagePercentage(Decimal::from_str("5").unwrap()),
     },
     funds: [
         Coin::new(10000, "uosmo")

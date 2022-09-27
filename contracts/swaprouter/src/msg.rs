@@ -48,6 +48,6 @@ pub struct GetRouteResponse {
 
 #[cw_serde]
 pub enum SwapType {
-    MaxPriceImpactPercentage(Decimal),
+    MaxSlippagePercentage(Decimal),
     MinOutputAmount(Uint128),
 }
