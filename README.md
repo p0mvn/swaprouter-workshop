@@ -1128,7 +1128,9 @@ Finally, let's upload our contract and test it with LocalOsmosis and Beaker.
 
 TODO: add instructions
 
-### Deploy to LocalOsmosis with Beaker
+### Deploy to LocalOsmosis
+
+#### Beaker
 
 ```bash
 # Create a key that we are going to operate with.
@@ -1137,13 +1139,35 @@ beaker key set lo-test1 "notice oak worry limit wrap speak medal online prefer c
 # Deploy swaprouter contract. Owner is the address of an account that we created above.
 # N.B. Label is needed in case you happen to want to make a change and redeploy a new version of the contract.
 # Since contracts are immutable, you would increase the label by 1 and redeploy to operate on a new version.
-beaker wasm deploy swaprouter --signer-keyring lo-test1 --no-wasm-opt --raw '{ "owner": "osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks" }' --label 1
+beaker wasm deploy swaprouter --signer-account test1 --no-wasm-opt --raw '{ "owner": "osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks" }' --label 1
 ```
 
-### Use Beaker to issue `ExecuteMsg::SetRoute`
+#### Osmosisd
+
+- Store contract code
 
 ```bash
-beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "uion", "output_denom": "uatom", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uatom" } ] } }' --signer-keyring lo-test1 --label 1
+TX=$(osmosisd tx wasm store target/wasm32-unknown-unknown/release/swaprouter.wasm --from lo-test1 --keyring-backend test --chain-id=localosmosis --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b block --output json -y | jq -r '.txhash')
+CODE_ID=$(osmosisd query tx $TX --output json | jq -r '.logs[0].events[-1].attributes[0].value')
+echo "Your contract code_id is $CODE_ID"
+```
+
+- Instantiate contract
+```bash
+osmosisd tx wasm instantiate $CODE_ID '{ "owner": "osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks" }' --from lo-test1 --keyring-backend test --amount 50000uosmo  --label "SwapRouter Contract" --from lo-test1 --chain-id localosmosis --gas-prices 0.1uosmo --gas auto --gas-adjustment 1.3 -b block -y --no-admin
+```
+
+- Get Contract Address
+```bash
+CONTRACT_ADDR=$(osmosisd query wasm list-contract-by-code $CODE_ID --output json | jq -r '.contracts[0]')
+
+echo $CONTRACT_ADDR
+```
+
+### Issue `ExecuteMsg::SetRoute`
+
+```bash
+beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "uion", "output_denom": "uatom", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uatom" } ] } }' --signer-account test1 --label 1
 ```
 
 ### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxSlippagePercentage`
