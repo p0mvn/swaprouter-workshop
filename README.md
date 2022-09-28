@@ -50,10 +50,6 @@ bash <(curl -sL https://get.osmosis.zone/run)
 
 ### Option 2: Manual Setup
 
-Follow [this](https://docs.osmosis.zone/cosmwasm/local/localosmosis) guide from the Osmosis docs.
-
-See the versions of the tools required for this workshop in the FAQ section.
-
 #### Rust
 
 Install Rust using rustup with the following command and follow the prompts:
