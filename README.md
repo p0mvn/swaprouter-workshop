@@ -1220,12 +1220,18 @@ echo $CONTRACT_ADDR
 beaker wasm execute swaprouter --raw '{ "set_route": { "input_denom": "stake", "output_denom": "uion", "pool_route": [ { "pool_id": 1, "token_out_denom": "uosmo" }, { "pool_id": 2, "token_out_denom": "uion" } ] } }' --signer-account test1 --label 1
 ```
 
+### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MinOutputAmount`
+
+```bash
+beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "50", "denom": "stake" }, "output_denom": "uion", "swap_type": { "min_output_amount": "1" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 10000000 --funds "50stake"
+```
+
 ### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxSlippagePercentage`
 
 ```bash
-beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "5", "denom": "stake" }, "output_denom": "uosmo", "swap_type": { "min_output_amount": "1" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 150000 --funds "5stake"
+# TODO
+beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "50", "denom": "stake" }, "output_denom": "uion", "swap_type": { "min_output_amount": "1" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 10000000 --funds "50stake"
 ```
-
 
 ### Optional TODO: Create a test contract
 
