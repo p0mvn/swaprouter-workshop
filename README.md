@@ -1229,8 +1229,7 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "50",
 ### Use Beaker to issue `ExecuteMsg::Swap` with `SwapType::MaxSlippagePercentage`
 
 ```bash
-# TODO
-beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "50", "denom": "stake" }, "output_denom": "uion", "swap_type": { "min_output_amount": "1" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 10000000 --funds "50stake"
+beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000", "denom": "stake" }, "output_denom": "uion", "swap_type": { "max_slippage_percentage": "20" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 25000000 --funds "1000stake"
 ```
 
 ### Optional TODO: Create a test contract
