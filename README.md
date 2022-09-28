@@ -143,11 +143,15 @@ are available to jump to any specific point in the workshop.
 
 #### Generate a new CosmWasm Project with Beaker
 
-```bash
-# Generate workspace
-beaker new swaprouter-workshop
+First, generate the swaprouter workspace with the following command:
 
-# Generate contract inside the workspace
+```bash
+beaker new swaprouter-workshop
+```
+
+Select the minimal template. Now generate a contract inside the workspace.
+
+```bash
 cd swaprouter-workshop
 beaker wasm new swaprouter
 ```
@@ -192,7 +196,7 @@ today:
 
 1. `instantiate`
 
-When contract's code is already uploaded to the chain. It needs to be instantiated to initialize state.
+Once the contract's code is uploaded to the chain, it needs to be instantiated to initialize state.
 This entypoint takes a respective `InstantiateMsg` and executes it. It is the first message that is run for the contract, and it can only be run once.
 
 2. `execute`
