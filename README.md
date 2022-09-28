@@ -36,19 +36,17 @@ and many many others.
 - Interacting with the Osmosis chain in CosmWasm.
 - Learning more about swaps and TWAP.
 
-## Prerequisites
+## Prerequisites: Rust, Contract Environment, Beaker, and Osmosis
 
 Before begining, you must set up Rust, your contract environment, Beaker, and Osmosis with one of the two following options:
 
-### Option 1 (Recommended): Automatic Setup of Rust, Contact Environment, Beaker, and Osmosis with LocalOsmosis
+### Option 1 (Recommended): Automatic Setup
 
-Start the installer with the following command:
+Start the installer with the following command, choose LocalOsmosis (option 3), and follow the prompts:
 
 ```bash
 bash <(curl -sL https://get.osmosis.zone/run)
 ```
-
-Choose the LocalOsmosis option (3), and follow the prompts.
 
 ### Option 2: Manual Setup
 
