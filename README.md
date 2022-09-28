@@ -1201,7 +1201,30 @@ Finally, let's upload our contract and test it with LocalOsmosis and Beaker.
 
 ### Start LocalOsmosis
 
-TODO: add instructions
+LocalOsmosis is a tool to spin up a local test Osmosis chain.
+It is located inside the Osmosis repository and can be interacted
+with by Makefile commands.
+
+```bash
+cd $HOME/osmosis
+git checkout v12.x
+
+# Build localnet Osmosis image.
+make localnet-build
+
+# Start LocalOsmosis with test state.
+make localnet-start-with-state
+
+# Add test account keys to your keyring.
+make localnet-keys
+
+# To stop LocalOsmosis
+make localnet-stop 
+
+# To reset the state (only call when chain is stopped)
+# Warning: deletes all the progress deployed to chain so far.
+make localnet-clean
+```
 
 ### Deploy to LocalOsmosis
 
@@ -1262,5 +1285,3 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000
 TODO: add link to docs page abou what's going on under the hood of beaker deploy
 
 TODO: FAQ for debugging logs
-
-TODO: add  acceptance criteria to each chceckpoint and run `cargo wasm` and it compiles
