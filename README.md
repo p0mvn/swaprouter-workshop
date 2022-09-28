@@ -38,7 +38,9 @@ and many many others.
 
 ## Prerequisites
 
-### Option 1: Quick Install with Osmosis Installer (Recommended)
+Before begining, you must set up Rust, your contract environment, Beaker, and Osmosis with one of the two following options:
+
+### Option 1 (Recommended): Automatic Setup of Rust, Contact Environment, Beaker, and Osmosis with LocalOsmosis
 
 Start the installer with the following command:
 
@@ -48,11 +50,61 @@ bash <(curl -sL https://get.osmosis.zone/run)
 
 Choose the LocalOsmosis option (3), and follow the prompts.
 
-### Option 2: Manual Install
+### Option 2: Manual Setup
 
 Follow [this](https://docs.osmosis.zone/cosmwasm/local/localosmosis) guide from the Osmosis docs.
 
 See the versions of the tools required for this workshop in the FAQ section.
+
+#### Rust
+
+Install Rust using rustup with the following command and follow the prompts:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+#### Contact Environment
+
+Set 'stable' as the default release channel:
+
+```bash
+rustup default stable
+```
+
+Add WASM as the compilation target:
+
+```bash
+rustup target add wasm32-unknown-unknown
+```
+
+Install the following packages to generate the contract:
+
+```bash
+cargo install cargo-generate --features vendored-openssl
+cargo install cargo-run-scrip
+```
+
+#### Beaker
+
+Install Beaker with the following command:
+
+```bash
+cargo install -f beaker
+```
+
+#### Osmosis
+
+Setup v12.x Osmosis
+
+```bash
+cd $HOME
+git clone https://github.com/osmosis-labs/osmosis.git
+cd $HOME/osmosis
+git checkout v12.x
+make install
+source ~/.profile
+```
 
 ## CosmWasm Fundamentals
 
