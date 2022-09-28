@@ -1285,3 +1285,9 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000
 TODO: add link to docs page abou what's going on under the hood of beaker deploy
 
 TODO: FAQ for debugging logs
+
+### Part 1 TODO
+
+* add to instructions that we are creating the execute.rs and query.rs
+* need to add cargo.toml additions
+* possibly re-add migratemsg
