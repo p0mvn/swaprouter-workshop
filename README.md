@@ -40,7 +40,7 @@ and many many others.
 
 Before begining, you must set up Rust, your contract environment, Beaker, and Osmosis with one of the two following options:
 
-### Option 1 (Recommended): Automatic Setup
+### Option 1: Automatic Setup
 
 Start the installer with the following command, choose LocalOsmosis (option 3), and follow the prompts:
 
