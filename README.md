@@ -283,6 +283,10 @@ Sources:
 - [Actor Framework](https://docs.cosmwasm.com/docs/1.0/actor-model/idea/)
 - [Comparison with Solidity](https://docs.cosmwasm.com/docs/1.0/architecture/smart-contracts/)
 
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+
 ### 1. Complete Instantiate Message and Write Out Stubs
 
 **Goals**:
@@ -505,6 +509,10 @@ pub fn instantiate(
 }
 ```
 
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+
 ### 2. Implement Set Route Message
 
 **Goals**:
@@ -667,6 +675,11 @@ With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
 - `cargo wasm` to build the contract
 - `cargo test` to run the osmosis tests
 
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+- [x] Be able to `cargo test` without any errors.
+
 ### 3. Implement Queries
 
 **Goals**:
@@ -737,6 +750,11 @@ mod tests {
     }
 }
 ```
+
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+- [x] Be able to `cargo test` without any errors.
 
 ### 4. Implement Basic Swap Message
 
@@ -983,6 +1001,11 @@ Checkpoint 4 should now be complete. At this point, we have all the core
 functionality layed out. The remaining logic is adding slippage limit
 functionality to the contract.
 
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+- [x] Be able to `cargo test` without any errors.
+
 ### 5. Final Result: Swap with Maximum Slippage Percentage
 
 **Goals**:
@@ -1166,9 +1189,11 @@ However, there are 2 relevant files on the checkpoint 2 branch:
 - [`test_env.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/test_env.rs)
     * Setup logic
 
-With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
-- `cargo wasm` to build the contract
-- `cargo test` to run the osmosis tests
+#### Acceptance Criteria
+
+- [x] Be able to `cargo wasm` without any errors.
+- [x] Be able to `cargo test` without any errors.
+- [x] Be able to deploy and manually test the contract with Beaker (discussed in the next section)
 
 ## Deployment
 
