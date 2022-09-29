@@ -534,16 +534,16 @@ In `execute.rs`:
 // - invalid pool route given
 //
 // Example 1 (one-hop):
-// OSMO -> ATOM
+// OSMO -> ION
 // input: OSMO
-// OUTPUT: ATOM
-// ROUTE = [ { pool_id: 1, token_out_denom: ATOM } ]
+// OUTPUT: ION
+// ROUTE = [ { pool_id: 1, token_out_denom: ION } ]
 //
 // Example 2 (multi-hop):
-// OSMO -> ATOM -> STAKE
+// OSMO -> ION -> STAKE
 // input: OSMO
-// OUTPUT: ATOM
-// ROUTE = [ { pool_id: 1, token_out_denom: ATOM }, { pool_id: 2, token_out_denom: STAKE } ]
+// OUTPUT: STAKE
+// ROUTE = [ { pool_id: 1, token_out_denom: ION }, { pool_id: 2, token_out_denom: STAKE } ]
 pub fn set_route(...) {
     ...
 }
