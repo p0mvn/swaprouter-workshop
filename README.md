@@ -698,6 +698,18 @@ pub fn validate_pool_route(
 }
 ```
 
+Let's now add our new custom error `InvaliudPoolRoute` to `errors.rs`:
+
+```rust
+#[derive(Error, Debug)]
+pub enum ContractError {
+    ...
+
+    #[error("Invalid Pool Route: {reason:?}")]
+    InvalidPoolRoute { reason: String },
+}
+```
+
 Now, we are ready to test this message with `osmosis-testing`. We omit listing details in this README.
 However, there are 2 relevant files on the checkpoint 2 branch:
 
