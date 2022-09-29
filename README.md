@@ -339,9 +339,9 @@ Based on the above requirements, let's outline all the logic that we require.
 Each `QueryMsg` and `ExecuteMsg` need to have a relevant handler function.
 Therefore, let's proceed by defining them all.
 
-There are 2 `ExecuteMsg`s - `SetRoute` and `Swap`. So, in `execute.rs` we
-define the rough stub handlers for them. Note that they might change as
-we progress with the workshop.
+There are 2 `ExecuteMsg`s - `SetRoute` and `Swap`. So, we create a new file
+`contracts/swaprouter/src/execute.rs` to define the rough stub handlers for these messages.
+Note that they will be modified as we progress with the workshop.
 
 ```rust
 pub fn set_route(
@@ -362,7 +362,7 @@ pub fn swap(
 ```
 
 Similarly, there are 2 query messages so we define their stub handlers
-in `query.rs`:
+in the new file `contracts/swaprouter/src/query.rs`:
 
 ```rust
 pub fn query_owner() -> StdResult<GetOwnerResponse> {
@@ -584,7 +584,7 @@ pub fn set_route(
 }
 ```
 
-Implement each helper in `helpers.rs`:
+Implement each helper in the new file `contracts/swaprouter/src/helpers.rs`:
 
 ```rust
 // validate_is_contract_owner validates if sender is the contract owner.
