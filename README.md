@@ -434,6 +434,7 @@ add a dependency `osmosis-std` to `contracts/swaprouter/Cargo.toml`:
 
 ```toml
 [dependencies]
+...
 osmosis-std = {git = "https://github.com/osmosis-labs/osmosis-rust", branch = "osmosis-v12-rc2"}
 ```
 
@@ -678,6 +679,14 @@ However, there are 2 relevant files on the checkpoint 2 branch:
 Essentially, `osmosis-testing` spins up an actual test Osmosis application in the background. That allows us
 to realistically check that all of the messages are functioning as expected contrary to the original `cw_multitest` approach
 that forces users to define mocks.
+
+Make sure to add `osmosis-testing` to `contracts/swaprouter/Cargo.toml`:
+
+```toml
+[dev-dependencies]
+...
+osmosis-testing = {git = "https://github.com/osmosis-labs/osmosis-rust", branch = "main"}
+```
 
 With these files and `osmosis_testing` added to your `Cargo.toml`, you can run:
 - `cargo wasm` to build the contract
