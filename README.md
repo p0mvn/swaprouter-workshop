@@ -1279,6 +1279,11 @@ The following commands builds the contract as a wasm file, uploads it to
 beaker wasm deploy swaprouter --signer-account test1 --no-wasm-opt --raw '{ "owner": "osmo1cyyzpxplxdzkeea7kwsydadg87357qnahakaks" }' --label 1
 ```
 
+Note: `beaker wasm deploy` does the following behind the scenes:
+- builds the wasm contract file
+- stores it on chain
+- instantiates the contract
+
 ### Issue `ExecuteMsg::SetRoute`
 
 ```bash
@@ -1298,5 +1303,3 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000
 ```
 
 ### Optional TODO: Create a test contract
-
-TODO: add link to docs page abou what's going on under the hood of beaker deploy
