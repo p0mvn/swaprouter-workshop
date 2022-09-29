@@ -294,9 +294,18 @@ Sources:
 - [Actor Framework](https://docs.cosmwasm.com/docs/1.0/actor-model/idea/)
 - [Comparison with Solidity](https://docs.cosmwasm.com/docs/1.0/architecture/smart-contracts/)
 
+#### Remove `MigrateMsg` and `migrate` Entrypoint
+
+As previously discussed, these are outside of the scope of the workshop so to keep the code
+clean, please remove the `MigrateMsg` and `migrate` entrypoint from the contract.
+
+For reference, the diff of what needs to be removed can be seen in this PR:
+https://github.com/p0mvn/swaprouter-workshop/pull/11/files
+
 #### Acceptance Criteria
 
 - [x] Be able to `cargo wasm` without any errors.
+- [x] `MigrateMsg` and `migrate` entrypoint are removed
 
 ### 1. Complete Instantiate Message and Write Out Stubs
 
@@ -1291,7 +1300,3 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000
 ### Optional TODO: Create a test contract
 
 TODO: add link to docs page abou what's going on under the hood of beaker deploy
-
-### Part 1 TODO
-
-* possibly re-add migratemsg
