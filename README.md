@@ -145,6 +145,10 @@ deps.api.debug(&format!(
 ));
 ```
 
+- What extension do I need for the seamless development experience?
+    * Only `rust-analyzer` is required. Please make sure that the deprecated
+    `Rust` extension is not installed
+
 ### 0. Setup and Contract Boilerplate
 
 **Goals**:
@@ -1144,8 +1148,6 @@ pub fn swap(
 
 Lastly, let's implement `calculate_min_output_from_twap` function in `helpers.rs`
 for the new swap type:
-
-TODO: break down the implementation more
 
 ```rust
 pub fn calculate_min_output_from_twap(
