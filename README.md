@@ -134,6 +134,17 @@ are available to jump to any specific point in the workshop.
 - What is the version of `Osmosis/LocalOsmosis`?
     * [`v12.x`](https://github.com/osmosis-labs/osmosis/tree/v12.x/tests/localosmosis)
 
+- How to improve debugging experience with `osmosis-testing`?
+    * To print additional debug messages to the console when executing `osmosis-testing` tests, you can use
+    `deps.api.debug(< msg >)` in your contract code. For example:
+
+```rust
+twap_price = twap_price - twap_price.mul(percentage);
+deps.api.debug(&format!(
+    "twap_price minus {percentage_impact}%: {twap_price}"
+));
+```
+
 ### 0. Setup and Contract Boilerplate
 
 **Goals**:
@@ -1281,9 +1292,6 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000
 
 TODO: add link to docs page abou what's going on under the hood of beaker deploy
 
-TODO: FAQ for debugging logs
-
 ### Part 1 TODO
 
-* need to add cargo.toml additions
 * possibly re-add migratemsg
