@@ -429,7 +429,15 @@ pub struct GetRouteResponse {
 }
 ```
 
-With the messaged defined, we can proceed by connecting them to
+Notice that this does not compile. Part of the problem is that we need to
+add a dependency `osmosis-std` to `contracts/swaprouter/Cargo.toml`:
+
+```toml
+[dependencies]
+osmosis-std = {git = "https://github.com/osmosis-labs/osmosis-rust", branch = "osmosis-v12-rc2"}
+```
+
+With the messaged defined and dependency added, we can proceed by connecting them to
 the handlers in `contract.rs`:
 
 ```rust
@@ -1268,6 +1276,5 @@ TODO: FAQ for debugging logs
 
 ### Part 1 TODO
 
-* add to instructions that we are creating the execute.rs and query.rs
 * need to add cargo.toml additions
 * possibly re-add migratemsg
