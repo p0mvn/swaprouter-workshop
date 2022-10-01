@@ -1241,7 +1241,7 @@ pub fn calculate_min_output_from_twap(
 Now, we are ready to test this message with `osmosis-testing`. We omit listing details in this README.
 However, there are 2 relevant files on the checkpoint 2 branch:
 
-- [`set_route_test.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/swap_test.rs)
+- [`swap_test.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/swap_test.rs)
     * Actual tests
 - [`test_env.rs`](https://github.com/p0mvn/swaprouter-workshop/blob/main/contracts/swaprouter/tests/test_env.rs)
     * Setup logic
@@ -1321,5 +1321,3 @@ beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "50",
 ```bash
 beaker wasm execute swaprouter --raw '{"swap": { "input_coin": { "amount": "1000", "denom": "stake" }, "output_denom": "uion", "swap_type": { "max_slippage_percentage": "20" } } }' --signer-account test1 --label 1 --gas "100000uosmo" --gas-limit 25000000 --funds "1000stake"
 ```
-
-### Optional TODO: Create a test contract
